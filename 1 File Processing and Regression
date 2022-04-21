@@ -1,0 +1,19 @@
+library(dplyr)
+
+#splitting off data
+df1 = filter(data, sex== "M" & age>= 18 & preg_stat == "2")
+
+
+#regression modelling
+#generate regression model for binary outcome (mortality)
+glm.agediag = glm(died_hosp ~ age + ap3diag, data=df1, family=binomial)
+
+#generate regression model for continuous outcome (eg. RALOS)
+glm.cont = glm(ralos ~ age + ap3diag, data=df1, family=gaussian)
+
+#get P values
+summary(glm.agediag)
+
+#get 95% CI
+confint(glm.agediag)
+
