@@ -1,15 +1,19 @@
 library(dplyr)
 
-data=xls file
+data=.xls
 
 #splitting off data
-df1 = filter(data, sex== "M" & age>= 18 & preg_stat == "2")
+df1 = filter(data, sex== "M" & 
+             age>= 18 & 
+             preg_stat == "2")
 
-#remoove NAs from columns of interest
-df2=filter(df1, !is.na(df1$age))
+#NA handling
+#remove rows with NAs
+df1=filter(df1, !is.na(df1$age))
 
-#1 - replace NA with 0 if  applicable
+#replace NA with 0 if  applicable
 df1$died_hosp[is.na(df1$died_hosp)] = 0
+
 
 #descriptives
 #print summary of data
@@ -18,29 +22,36 @@ write.csv(summary(data), "summary.csv")
 
 #regression modelling
 #generate regression model for binary outcome (mortality)
-glm.agediag = glm(died_hosp ~ age + ap3diag, data=df1, family=binomial)
+glm.binary = glm(died_hosp ~ age + ap3diag, 
+                  data=df1, 
+                  family=binomial)
 
 #generate regression model for continuous outcome (eg. RALOS)
-glm.cont = glm(ralos ~ age + ap3diag, data=df1, family=gaussian)
+glm.cont = glm(ralos ~ age + ap3diag, 
+               data=df1, 
+               family=gaussian)
 
 #get P values
-summary(glm.agediag)
+summary(glm.binary)
 
 #get 95% CI
-confint(glm.agediag)
+confint(glm.binary)
 
 #ROC modelling
 
-#generate predictions for dataset
-ROCpred = predict(glm.agediag, type='response')
-#assign labels 
+#generate predicted outcomes for dataset
+ROCpred = predict(glm.binary, 
+                  type='response')
+                  
+#assign observed outcomes to cases 
 pred = prediction(ROCpred, df1$died_hosp)
 
 #calculate model performance
 perf = performance(pred, measure = "tpr", x.measure = "fpr")
 
-#Plots and reports
+#AUC Plots and reports
 plot(perf, col=rainbow(10))
+
 auc_perf = performance(pred, measure = "auc")
 
 
