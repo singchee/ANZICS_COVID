@@ -1,5 +1,7 @@
 library(dplyr)
 
+data=xls file
+
 #splitting off data
 df1 = filter(data, sex== "M" & age>= 18 & preg_stat == "2")
 
@@ -8,6 +10,11 @@ df2=filter(df1, !is.na(df1$age))
 
 #1 - replace NA with 0 if  applicable
 df1$died_hosp[is.na(df1$died_hosp)] = 0
+
+#descriptives
+#print summary of data
+write.csv(summary(data), "summary.csv")
+
 
 #regression modelling
 #generate regression model for binary outcome (mortality)
@@ -35,3 +42,5 @@ perf = performance(pred, measure = "tpr", x.measure = "fpr")
 #Plots and reports
 plot(perf, col=rainbow(10))
 auc_perf = performance(pred, measure = "auc")
+
+
