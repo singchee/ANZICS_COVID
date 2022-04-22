@@ -2,10 +2,14 @@ library(dplyr)
 
 data=.xls
 
-#splitting off data
+#selecting based on exclusions criteria 
 df1 = filter(data, sex== "M" & 
              age>= 18 & 
              preg_stat == "2")
+
+
+#recoding values
+df$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
 
 #NA handling
 #remove rows with NAs
@@ -14,10 +18,12 @@ df1=filter(df1, !is.na(df1$age))
 #replace NA with 0 if  applicable
 df1$died_hosp[is.na(df1$died_hosp)] = 0
 
-
 #descriptives
 #print summary of data
 write.csv(summary(data), "summary.csv")
+
+# selecting only variables we need
+df1= select(df1, sex, age, ralos)
 
 
 #regression modelling
