@@ -1,0 +1,4 @@
+library(caret)
+ df2=filter(df1, !is.na(df1$anzrodriskofdeath))
+> model_gbm = train(died_hosp ~ anzrodriskofdeath, data=df2, method="gbm")
+fitted <- predict(model_gbm)
