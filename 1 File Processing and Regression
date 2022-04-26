@@ -16,6 +16,10 @@ dates$NDIDeath = as.Date(dates$NDIDeathDate, format= "%Y-%m-%d")
 dates$key = paste(dates$PatientID, as.POSIXct(data2$ICU_AD_DTM, format = "%d/%m/%Y %H:%M")
 + )
 
+#remove invalid NDI death dates
+dates$NDIDeath3 = as.Date(ifelse(dates$NDIDeath2 < "2000-1-1","",as.character(dates$NDIDeath2)))
+
+
 #NA handling
 #remove rows with NAs
 df1=filter(df1, !is.na(df1$age))
