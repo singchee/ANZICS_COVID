@@ -11,6 +11,10 @@ df1 = filter(data, sex== "M" &
 #recoding values
 df$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
 
+#convert dates
+dates$NDIDeath = as.Date(dates$NDIDeathDate, format= "%Y-%m-%d")
+
+
 #NA handling
 #remove rows with NAs
 df1=filter(df1, !is.na(df1$age))
