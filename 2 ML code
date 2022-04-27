@@ -4,16 +4,21 @@ library(MLeval)
 #remove Na values and change to 0
  df2=filter(df1, !is.na(df1$anzrodriskofdeath))
  
+#change outcome to name
+train$diedicu=make.names(train$diedicu)
+
+
 #create index for train/test
  trainindex=createDataPartition(df1$ralos, p=.8, list=FALSE, times = 1)
 train = df1[trainindex,]
 test = df1[-trainindex,]
 
+
 #create resampling techniqe for RF
 fitControl = trainControl(method = "cv",
                            number = 10, 
                            savePredictions = TRUE, 
-                           classProbs = FALSE, 
+                           classProbs = TRUE, 
                            verboseIter = TRUE)
                                
 #specify gbm parameters
@@ -28,7 +33,11 @@ model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train,
                   tuneGrid = gbmGrid, 
                   verbose = FALSE
                   )
-                  
+
+model_gbm
+evalm(fit)$roc
+evalm(fit)$stdres
+
 #RF code
 model_rf=  train (diedicu ~ anzrodriskofdeath, 
                   data=train,
@@ -37,4 +46,4 @@ model_rf=  train (diedicu ~ anzrodriskofdeath,
                   preProcess = c("center","scale"), 
                   ntree = 50)
 
-model_gbm
+model_rf
