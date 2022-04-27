@@ -13,6 +13,18 @@ train$diedicu=make.names(train$diedicu)
 train = df1[trainindex,]
 test = df1[-trainindex,]
 
+#Continuous predictor - ridge
+
+#resampling technique
+fitControl = trainControl(method = "repeatedcv",   
+                           number = 10,    
+                           repeats = 10)
+                           
+ridge <- train(ralos ~ .,
+               data = train,
+               method = "ridge",
+               trControl = fitControl,
+               preProcess = c('scale', 'center'))
 
 #create resampling techniqe for RF
 fitControl = trainControl(method = "cv",
