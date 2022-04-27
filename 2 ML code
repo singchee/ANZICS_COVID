@@ -24,7 +24,8 @@ ridge <- train(ralos ~ .,
                data = train,
                method = "ridge",
                trControl = fitControl,
-               preProcess = c('scale', 'center'))
+               preProcess = c('scale', 'center'), 
+               na.action = na.omit)
 
 #create resampling techniqe for RF
 fitControl = trainControl(method = "cv",
