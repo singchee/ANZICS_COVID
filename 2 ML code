@@ -19,5 +19,10 @@ gbmGrid =  expand.grid(interaction.depth= 3,
                         shrinkage = 0.1,
                         n.minobsinnode = 10)
 
-model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, method="gbm")
+model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, 
+                  method="gbm", 
+                  trControl = fitControl, 
+                  tuneGrid = gbmGrid, 
+                  verbose = FALSE
+                  )
 model_gbm
