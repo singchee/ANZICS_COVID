@@ -3,7 +3,7 @@ library(dplyr)
 data=.xls
 
 #choose columns of interest
-df1=select(df1, )
+df1=select(updated_data2, c(anzrodriskofdeath, died_icu))
 
 #selecting based on exclusions criteria 
 df1 = filter(data, sex== "M" & 
