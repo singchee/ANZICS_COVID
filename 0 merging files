@@ -1,0 +1,20 @@
+
+#Linking corrected data
+data=select(data,-c(ndideathdate, apddeathdate)) #remove old death data
+
+data$key = paste(data$patientid, data$icu_ad_dtm) #create primary linking key for original 
+
+#tidy corrected date file
+dates$NDIDeath = as.Date(dates$NDIDeathDate, format= "%Y-%m-%d") #convert date
+dates$key = paste(dates$PatientID, as.POSIXct(data2$ICU_AD_DTM, format = "%d/%m/%Y %H:%M")) #create primary linking key for corrected
+dates$NDIDeath3 = as.Date(ifelse(dates$NDIDeath2 < "2000-1-1","",as.character(dates$NDIDeath2))) #remove invalid NDI death dates
+
+#remove invalid APD death dates
+
+dates$APDDeathDate2= ifelse(dates$APDDeathDate < dates$HOSP_AD_DTM,"",as.character(dates$APDDeathDate))
+
+#Create combined death date (any death)
+data3$DeathDate = as.Date(ifelse(data3$APDDeathDate2 == "NULL" | is.na(data3$APDDeathDate2), as.character(data3$NDIDeath3), data3$APDDeathDate2))
+
+
+#Merge data
