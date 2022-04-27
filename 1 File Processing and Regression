@@ -58,6 +58,8 @@ pred = prediction(ROCpred, df1$died_hosp)
 
 #calculate model performance
 perf = performance(pred, measure = "tpr", x.measure = "fpr")
+perf_acc= performance(pred, measure = "acc")
+max(perf_acc@y.values[[1]])
 
 #AUC Plots and reports
 plot(perf, col=rainbow(10))
