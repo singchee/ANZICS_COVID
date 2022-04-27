@@ -18,6 +18,9 @@ df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
 df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
 df2 = filter(df2, preg_stat != 1 & preg_stat !=3)
 
+#compute LOS from ICU ad + dc time
+df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
+
 # replacing NAs with 0
 df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
 df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
