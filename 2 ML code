@@ -13,13 +13,28 @@ train$diedicu=make.names(train$diedicu)
 train = df1[trainindex,]
 test = df1[-trainindex,]
 
-#Continuous predictor - ridge
+#Continuous predictor 
 
 #resampling technique
-fitControl = trainControl(method = "repeatedcv",   
-                           number = 10,    
-                           repeats = 10)
-                           
+fitControl = trainControl(method = "cv",
+                           number = 10, 
+                           savePredictions = "final", 
+                           classProbs = FALSE, 
+                           verboseIter = TRUE)
+
+gbmGrid =  expand.grid(interaction.depth= 3, 
+                        n.trees = 100, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 10)
+
+model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, 
+                  method="gbm", 
+                  family="guassian",
+                  trControl = fitControl, 
+                  tuneGrid = gbmGrid, 
+                  verbose = FALSE
+                  )
+
 rf <- train(ralos ~ anzrodriskofdeath,
                data = train,
                method = "rf",
@@ -35,17 +50,7 @@ fitControl = trainControl(method = "cv",
                            verboseIter = TRUE)
                                
 #specify gbm parameters
-gbmGrid =  expand.grid(interaction.depth= 3, 
-                        n.trees = 100, 
-                        shrinkage = 0.1,
-                        n.minobsinnode = 10)
 
-model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, 
-                  method="gbm", 
-                  trControl = fitControl, 
-                  tuneGrid = gbmGrid, 
-                  verbose = FALSE
-                  )
 
 model_gbm
 evalm(fit)$roc
