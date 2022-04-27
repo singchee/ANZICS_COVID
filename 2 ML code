@@ -9,10 +9,12 @@ library(MLeval)
 train = df1[trainindex,]
 test = df1[-trainindex,]
 
-#create resampling techniqe
-fitControl = trainControl(method = "repeatedcv",
-                           number = 10,
-                               repeats = 10)
+#create resampling techniqe for RF
+fitControl = trainControl(method = "cv",
+                           number = 10, 
+                           savePredictions = TRUE, 
+                           classProbs = FALSE, 
+                           verboseIter = TRUE)
                                
 #specify gbm parameters
 gbmGrid =  expand.grid(interaction.depth= 3, 
@@ -26,4 +28,13 @@ model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train,
                   tuneGrid = gbmGrid, 
                   verbose = FALSE
                   )
+                  
+#RF code
+model_rf=  train (diedicu ~ anzrodriskofdeath, 
+                  data=train,
+                  method = "rf", 
+                  trControl = fitControl, 
+                  preProcess = c("center","scale"), 
+                  ntree = 50)
+
 model_gbm
