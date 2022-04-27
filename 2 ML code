@@ -20,9 +20,9 @@ fitControl = trainControl(method = "repeatedcv",
                            number = 10,    
                            repeats = 10)
                            
-ridge <- train(ralos ~ .,
+rf <- train(ralos ~ .,
                data = train,
-               method = "ridge",
+               method = "rf",
                trControl = fitControl,
                preProcess = c('scale', 'center'), 
                na.action = na.omit)
