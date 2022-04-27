@@ -20,7 +20,7 @@ fitControl = trainControl(method = "repeatedcv",
                            number = 10,    
                            repeats = 10)
                            
-rf <- train(ralos ~ .,
+rf <- train(ralos ~ anzrodriskofdeath,
                data = train,
                method = "rf",
                trControl = fitControl,
