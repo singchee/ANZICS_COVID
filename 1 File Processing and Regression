@@ -6,21 +6,23 @@ data=.xls
 df1=select(updated_data2, c(anzrodriskofdeath, died_icu))
 
 #selecting based on exclusions criteria 
-df1 = filter(data, sex== "M" & 
+df2 = filter(df1, sex== "M" & 
              age>= 18 & 
-             preg_stat == "2")
+             preg_stat == "1")
 
 
-#recoding values
+#recoding values 
 df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
-df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
 
-#NA handling
+# replacing NAs with 0
+df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
+df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
+df1$died_hosp[is.na(df1$died_hosp)] = 0
+
 #remove rows with NAs
 df1=filter(df1, !is.na(df1$age))
 
-#replace NA with 0 if  applicable
-df1$died_hosp[is.na(df1$died_hosp)] = 0
+
 
 #descriptives
 #print summary of data
@@ -57,13 +59,13 @@ ROCpred = predict(glm.binary,
 pred = prediction(ROCpred, df1$died_hosp)
 
 #calculate model performance
-perf = performance(pred, measure = "tpr", x.measure = "fpr")
+perf_auc = performance(pred, measure = "tpr", x.measure = "fpr")
 perf_acc= performance(pred, measure = "acc")
 max(perf_acc@y.values[[1]])
 
 #AUC Plots and reports
 plot(perf, col=rainbow(10))
 
-auc_perf = performance(pred, measure = "auc")
-
+perf_auc = performance(pred, measure = "auc")
+perf_auc@y.values[[1]]
 
