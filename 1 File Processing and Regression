@@ -45,7 +45,7 @@ glm.binary = glm(died_hosp ~ age + ap3diag,
                   family=binomial)
 
 #generate regression model for continuous outcome (eg. RALOS)
-glm.cont = glm(ralos ~ age + ap3diag, 
+lm.cont = lm(ralos ~ age + ap3diag, 
                data=df1, 
                family=gaussian)
 
