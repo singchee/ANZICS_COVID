@@ -2,6 +2,9 @@ library(dplyr)
 
 data=.xls
 
+#choose columns of interest
+df1=select(df1, )
+
 #selecting based on exclusions criteria 
 df1 = filter(data, sex== "M" & 
              age>= 18 & 
