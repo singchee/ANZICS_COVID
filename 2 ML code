@@ -8,6 +8,17 @@ library(caret)
 train = df1[trainindex,]
 test = df1[-trainindex,]
 
+#create resampling techniqe
+fitControl = trainControl(method = "repeatedcv",
+                           number = 10,
+                               repeats = 10)
+                               
+#specify gbm parameters
+gbmGrid =  expand.grid(interaction.depth 3, 
+                        n.trees = 100, 
+                        shrinkage = 0.1,
+                        n.minobsinnode = 10)
+
 model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, method="gbm")
 
 fitted <- predict(model_gbm)
