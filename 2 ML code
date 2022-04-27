@@ -1,4 +1,13 @@
 library(caret)
+
+#remove Na values and change to 0
  df2=filter(df1, !is.na(df1$anzrodriskofdeath))
-> model_gbm = train(died_hosp ~ anzrodriskofdeath, data=df2, method="gbm")
+ 
+#create index for train/test
+ trainindex=createDataPartition(df1$ralos, p=.8, list=FALSE, times = 1)
+train = df1[trainindex,]
+test = df1[-trainindex,]
+
+model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, method="gbm")
+
 fitted <- predict(model_gbm)
