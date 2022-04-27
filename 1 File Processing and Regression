@@ -12,8 +12,8 @@ df1 = filter(data, sex== "M" &
 
 
 #recoding values
-df$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
-
+df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
+df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
 
 #NA handling
 #remove rows with NAs
