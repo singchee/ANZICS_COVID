@@ -14,6 +14,10 @@ df2 = filter(df1, sex== "M" &
 #recoding values 
 df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
 
+#recode pregancy - replace NA to 0 first
+df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
+df2 = filter(df2, preg_stat != 1 & preg_stat !=3)
+
 # replacing NAs with 0
 df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
 df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
@@ -21,7 +25,6 @@ df1$died_hosp[is.na(df1$died_hosp)] = 0
 
 #remove rows with NAs
 df1=filter(df1, !is.na(df1$age))
-
 
 
 #descriptives
