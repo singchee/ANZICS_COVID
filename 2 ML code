@@ -20,5 +20,4 @@ gbmGrid =  expand.grid(interaction.depth 3,
                         n.minobsinnode = 10)
 
 model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, method="gbm")
-
-fitted <- predict(model_gbm)
+model_gbm
