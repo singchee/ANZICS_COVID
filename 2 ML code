@@ -27,9 +27,29 @@ gbmGrid =  expand.grid(interaction.depth= 3,
                         shrinkage = 0.1,
                         n.minobsinnode = 10)
 
+model_gbm = train(los ~ anzrodriskofdeath, data=train, 
+                  method="gbm", 
+                  trControl = fitControl, 
+                  tuneGrid = gbmGrid, 
+                  verbose = FALSE, 
+                  preProcess = c('scale', 'center')
+                  )
+
+model_gbm
+
+#classification
+
+train$diedicu=make.names(train$diedicu)
+
+
+fitControl = trainControl(method = "cv",
+                           number = 10, 
+                           savePredictions = "final", 
+                           classProbs = TRUE, 
+                           verboseIter = TRUE)
+
 model_gbm = train(died_hosp ~ anzrodriskofdeath, data=train, 
                   method="gbm", 
-                  family="guassian",
                   trControl = fitControl, 
                   tuneGrid = gbmGrid, 
                   verbose = FALSE
@@ -42,14 +62,6 @@ rf <- train(ralos ~ anzrodriskofdeath,
                preProcess = c('scale', 'center'), 
                na.action = na.omit)
 
-#create resampling techniqe for RF
-fitControl = trainControl(method = "cv",
-                           number = 10, 
-                           savePredictions = TRUE, 
-                           classProbs = TRUE, 
-                           verboseIter = TRUE)
-                               
-#specify gbm parameters
 
 
 model_gbm
