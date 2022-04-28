@@ -3,11 +3,10 @@ library(dplyr)
 data=.xls
 
 #choose columns of interest
-df1=select(updated_data2, c(anzrodriskofdeath, died_icu))
 
-df1=select(updated_data2, c(age, sex, covid, frailty, icu_ad_dtm, icu_ds_dtm, icu_hrs
-+ , icu_outcm, indigenous, NDIDeath3, ralos, sofa_score, hosp_ad_dtm, hosp_ds_dtm,
-+ hosp_hrs,hosp_outcm,aria100, apache3score, anzrodriskofdeath, died_icu))
+df1=select(updated_data2, c(anzrodriskofdeath, died_icu))
+df1=select(updated_data2, c(age, sex, frailty, ap3diag, ap3_subcode, apachegroup, apache3score, anzrodriskofdeath, icu_ad_dtm, icu_ds_dtm, icu_hrs, icu_outcm, indigenous, NDIDeath3, ralos, sofa_score, hosp_ad_dtm, hosp_ds_dtm,
++ hosp_hrs,hosp_outcm,aria100, diedever, DeathDate, died_icu))
 
 #selecting based on exclusions criteria 
 df2 = filter(df1, sex== "M" & 
