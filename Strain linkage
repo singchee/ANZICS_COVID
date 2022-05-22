@@ -1,0 +1,5 @@
+library(sqldf)
+
+#create SQL query to pull strain in df2 based on admission/discharge dates in df1
+
+df1$mean_strain = sqldf("select avg(Strain) from df1,df2 where df2.Date >= df1.DateAd AND df2.Date <= df1.DateDc") 
