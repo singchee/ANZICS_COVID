@@ -11,3 +11,9 @@ df1$Avg_strain=sqldf("SELECT df1.Site, AVG(df2.Strain)
 + LEFT JOIN df1 ON df2.Site = df1.Site
 + WHERE df2.Date >= df1.DateAd AND df2.Date <= df1.DateDc
 + GROUP BY df2.Site")
+
+df3= sqldf("select df1.patientid, df1.icuaddtm, df1.icudcdttm, df1.campusname, avg(df2.a_index) as Avg_AI 
+      FROM df1 
+      LEFT JOIN df2 ON df1.campusname=df2.CampusName
+      AND df2.lastentry_dum >= df1.icuaddtm AND df2.lastentry_dum<=df1.icudcdttm 
+      group by df1.patientid, df1.icuaddtm, df1.icudcdttm, df1.campusname")
