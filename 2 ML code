@@ -63,10 +63,12 @@ rf <- train(ralos ~ anzrodriskofdeath,
                na.action = na.omit)
 
 
+gbm.prob = predict(model_gbm2, test, type="prob") #training set probability
+gbm.ROC <- roc(predictor=gbm.prob$X1, 
+               response=test$outcome)   #compare predicted with actual
 
+gbm.ROC$auc
 model_gbm
-evalm(fit)$roc
-evalm(fit)$stdres
 
 #RF code
 model_rf=  train (diedicu ~ anzrodriskofdeath, 
