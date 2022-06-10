@@ -1,17 +1,34 @@
 library(dplyr)
 
-data=.xls
+df1=.xls
 
 #choose columns of interest
+df2=select(df1, c(PatientID, HospitalClassification, 
+                  JurisdictionName,AGE, ELECT,  SEX,AP3DIAG, ELECT_SURG, READMITTED,
+                  PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, ICU_AD_DTM, ICU_HRS, 
+                  HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ICU_OUTCM, ANZRODIsSMR, ANZRODRiskOfDeath, 
+                  ANZRODRiskofDeath_old, PANDEMIC, VENTILATED, FRAILTY))
 
-df1=select(updated_data2, c(anzrodriskofdeath, died_icu))
-df1=select(updated_data2, c(age, sex, frailty, ap3diag, ap3_subcode, apachegroup, apache3score, anzrodriskofdeath, icu_ad_dtm, icu_ds_dtm, icu_hrs, icu_outcm, indigenous, NDIDeath3, ralos, sofa_score, hosp_ad_dtm, hosp_ds_dtm,
-+ hosp_hrs,hosp_outcm,aria100, diedever, DeathDate, died_icu))
 
-#selecting based on exclusions criteria 
-df2 = filter(df1, sex== "M" & 
-             age>= 18 & 
-             preg_stat == "1")
+
+
+# replacing NAs with 0
+df2 = replace_na(df2, list(ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0))
+
+#Select only those with SMR
+df3= filter(df2, df2$ANZRODIsSMR == 1)
+
+#Generate pandemic variable - admitted >=2020
+df3$pandemic = ifelse(format(df3$ICU_AD_DTM, format="%Y") >= 2020, 1, 0)
+
+
+
+#generate table 1
+
+---------------------------------------
+
+#compute LOS from ICU ad + dc time
+df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
 
 
 #recoding values 
@@ -20,25 +37,25 @@ df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
 #recode pregancy - replace NA to 0 first
 df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
 df2 = filter(df2, preg_stat != 1 & preg_stat !=3)
+#selecting based on exclusions criteria 
+df2 = filter(df1, sex== "M" & 
+             age>= 18 & 
+             preg_stat == "1")
 
-#compute LOS from ICU ad + dc time
-df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
+#remove rows with NAs
+df1=filter(df1, !is.na(df1$age))
 
-# replacing NAs with 0
 df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
 df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
 df1$died_hosp[is.na(df1$died_hosp)] = 0
 
-#remove rows with NAs
-df1=filter(df1, !is.na(df1$age))
+
 
 
 #descriptives
 #print summary of data
 write.csv(summary(data), "summary.csv")
 
-# selecting only variables we need
-df1= select(df1, sex, age, ralos)
 
 
 #regression modelling
