@@ -23,7 +23,8 @@ df3$pandemicperiod = ifelse(df3$ICU_AD_DTM >= as.Date("2020-03-01", origin = "19
 
 #Generate NSW+Vic+ACT flag
 df3$state_subgroup = ifelse(df3$JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0)
-
+#Remove NZ 
+df3 = filter(df3, df3$JurisdictionName !="NZ")
 
 #Apply exclusions
 
