@@ -4,7 +4,7 @@ df1=.xls
 
 #choose columns of interest
 df2=select(df1, c(PatientID, HospitalClassification, 
-                  JurisdictionName,AGE, ELECT,  SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
+                  JurisdictionName,postcode, AGE, ELECT,  SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, ICU_AD_DTM, ICU_HRS, 
                   HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ICU_OUTCM, ANZRODIsSMR, ANZRODRiskOfDeath, 
                   ANZRODRiskofDeath_old, PANDEMIC, VENTILATED, FRAILTY))
@@ -39,7 +39,7 @@ df4= filter(df3, !df3$AP3_SUBCODE  %in%
 df4 = filter(df4, df4$READMITTED == 0)
 
 #generate table 1
-
+tab = CreateTableOne(data = df4, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","DIED_HOSP"), strata= "pandemicperiod")
 ---------------------------------------
 
 #compute LOS from ICU ad + dc time
