@@ -21,6 +21,10 @@ df3= filter(df2, df2$ANZRODIsSMR == 1)
 #Generate pandemic variable - admitted >= March 2020
 df3$pandemicperiod = ifelse(df3$ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0)
 
+#Generate NSW+Vic+ACT flag
+df3$state_subgroup = ifelse(df3$JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0)
+
+
 #Apply exclusions
 
 #Remove pandmic codes
