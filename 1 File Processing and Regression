@@ -18,8 +18,8 @@ df2 = replace_na(df2, list(ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INO
 #Select only those with SMR
 df3= filter(df2, df2$ANZRODIsSMR == 1)
 
-#Generate pandemic variable - admitted >=2020
-df3$pandemicperiod = ifelse(format(df3$ICU_AD_DTM, format="%Y") >= 2020, 1, 0)
+#Generate pandemic variable - admitted >= March 2020
+df3$pandemicperiod = ifelse(df3$ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0)
 
 #Apply exclusions
 
