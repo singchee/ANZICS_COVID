@@ -4,7 +4,7 @@ df1=.xls
 
 #choose columns of interest
 df2=select(df1, c(PatientID, HospitalClassification, 
-                  JurisdictionName,AGE, ELECT,  SEX,AP3DIAG, ELECT_SURG, READMITTED,
+                  JurisdictionName,AGE, ELECT,  SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, ICU_AD_DTM, ICU_HRS, 
                   HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ICU_OUTCM, ANZRODIsSMR, ANZRODRiskOfDeath, 
                   ANZRODRiskofDeath_old, PANDEMIC, VENTILATED, FRAILTY))
@@ -19,10 +19,21 @@ df2 = replace_na(df2, list(ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INO
 df3= filter(df2, df2$ANZRODIsSMR == 1)
 
 #Generate pandemic variable - admitted >=2020
-df3$pandemic = ifelse(format(df3$ICU_AD_DTM, format="%Y") >= 2020, 1, 0)
+df3$pandemicperiod = ifelse(format(df3$ICU_AD_DTM, format="%Y") >= 2020, 1, 0)
 
-
-
+#Apply exclusions
+df4= filter(df3, df3$pandemic  !==1)
+#Remove pandmic codes
+df4= filter(df3, !df3$AP3_SUBCODE  %in% 
+      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
+      203.02, 204.02, 206.02, 208.02 , 210.03, 212.03, 213.02, 
+      301.05, 
+      404.04, 
+      501.07, 503.02, 
+      704.12, 
+      901.08, 
+      1101.10 , 1102.02))
+      
 #generate table 1
 
 ---------------------------------------
