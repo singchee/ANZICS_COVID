@@ -24,7 +24,7 @@ df3$pandemicperiod = ifelse(format(df3$ICU_AD_DTM, format="%Y") >= 2020, 1, 0)
 #Apply exclusions
 
 #Remove pandmic codes
-df4= filter(df3, df3$pandemic  !==1)
+df4= filter(df3, df3$PANDEMIC  !=1)
 df4= filter(df3, !df3$AP3_SUBCODE  %in% 
       c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
       203.02, 204.02, 206.02, 208.02 , 210.03, 212.03, 213.02, 
