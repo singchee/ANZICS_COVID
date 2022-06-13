@@ -13,7 +13,7 @@ df2=select(df1, c(PatientID, HospitalClassification,
 
 
 # replacing NAs with 0
-df2 = replace_na(df2, list(ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0))
+df2 = replace_na(df2, list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0))
 
 #Select only those with SMR
 df3= filter(df2, df2$ANZRODIsSMR == 1)
