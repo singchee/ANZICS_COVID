@@ -18,6 +18,9 @@ df2 = replace_na(df2, list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_S
 #Select only those with SMR
 df3= filter(df2, df2$ANZRODIsSMR == 1)
 
+#Select ANZROD based on 1Jan 2020 (old vs new)
+df3$ANZROD = ifelse(df3$ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), df3$ANZRODRiskOfDeath, df3$ANZRODRiskofDeath_old)
+
 #Generate pandemic variable - admitted >= March 2020
 df3$pandemicperiod = ifelse(df3$ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0)
 
@@ -32,7 +35,7 @@ df3 = filter(df3, df3$JurisdictionName !="NZ")
 df4= filter(df3, df3$PANDEMIC  !=1)
 df4= filter(df3, !df3$AP3_SUBCODE  %in% 
       c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
-      203.02, 204.02, 206.02, 208.02 , 210.03, 212.03, 213.02, 
+      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
       301.05, 
       404.04, 
       501.07, 503.02, 
