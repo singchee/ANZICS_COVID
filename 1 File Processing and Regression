@@ -50,6 +50,15 @@ df4 = filter(df4, df4$READMITTED == 0)
 tab = CreateTableOne(data = df4, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","DIED_HOSP"), strata= "pandemicperiod")
 ---------------------------------------
 
+#group data by month
+df4 %>%
+    mutate(month = format(ICU_AD_DTM, "%m"), year = format(ICU_AD_DTM, "%Y")) %>%
+    group_by(month, year) %>%
+    summarise(total = mean(DIED_HOSP)) %>%
+    arrange(year, month)
+    
+
+
 #compute LOS from ICU ad + dc time
 df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
 
