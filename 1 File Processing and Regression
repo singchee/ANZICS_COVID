@@ -68,18 +68,12 @@ df5=df5 %>%
 
 #SMR plot
 ggplot(df5, aes(x=date,y=SMR, group=1)) + 
-+     geom_line() + 
-+     ylim(0.5, 1) + 
-+     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-+     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)
-      annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
-
-
-
-
-
-
-
+    geom_line() + 
+    ylim(0.5, 1) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+    geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
+    geom_smooth(method = "lm", aes(group=pandperiod)) +
+    annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 
 #compute LOS from ICU ad + dc time
 df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
