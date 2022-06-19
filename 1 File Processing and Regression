@@ -52,10 +52,10 @@ tab = CreateTableOne(data = df4, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","D
 
 #group data by month
 df5=df4 %>%
-     mutate(year = format(ICU_AD_DTM, "%Y"), month = format(ICU_AD_DTM, "%m")) %>%
-                group_by(month, year) %>%
-                summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
-                arrange(year, month)
+    mutate(year = year(AD_date), month = month(AD_date)) %>%
+    group_by(month, year) %>%
+    summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
+    arrange(year, month)
 
 ggplot(df5, aes(x=mmyy,y=SMR, group=1)) + geom_line() + ylim(0.5, 1) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + geom_vline(xintercept = "2020-03", linetype="dotted",color = "blue", size=1) + annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
 
