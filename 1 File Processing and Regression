@@ -79,7 +79,14 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 
 ts=lm(SMR ~ series + pandperiod + pandseries, df5)
-summary(ts)
+library(stargazer)
+tab=stargazer(ts, 
++           type="text",
++           dep.var.labels = ("SMR"),
++           column.labels = ("Results"),
++           covariate.labels = c("Time", "Pandemic Period Start", "Time since Pandemic Started"),
++           omit.stat="all",
++           digits=2)
 
 --------------------------
 
