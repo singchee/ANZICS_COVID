@@ -67,11 +67,11 @@ df5=df5 %>%
     mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
 
 #SMR plot
-SMR = ggplot(df5, aes(x=date,y=SMR, group=1)) + 
-      geom_line() + 
-      ylim(0.5, 1) + 
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-      geom_vline(xintercept = "2020-03", linetype="dotted",color = "blue", size=1) + 
+ggplot(df5, aes(x=date,y=SMR, group=1)) + 
++     geom_line() + 
++     ylim(0.5, 1) + 
++     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
++     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)
       annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
 
 
