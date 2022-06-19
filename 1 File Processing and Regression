@@ -98,6 +98,11 @@ tab=stargazer(ts,
 
 --------------------------
 
+#Create variables for panel data analysis
+
+df4$date=as.Date(as.yearmon(paste(df4$year, df4$month, sep="-"))) #date linkage key
+linked= merge(x=df4, y=select(df5, c("date", "pandperiod", "series", "pandseries")), by ="date", all.x=TRUE)
+
 
 <ignore below>
 
