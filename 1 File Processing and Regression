@@ -63,13 +63,16 @@ df5$date=as.Date(zoo::as.yearmon(df5$date))
 
 #generate pandemic period and time series labels
 df5=df5 %>%
-+     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-+     group_by(pandperiod) %>%
-+     mutate(pandseries = 1:n()) %>%
-+     mutate (pandseries = ifelse(pandperiod == 0, pandseries==0, pandseries))
+    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
+    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
 
 #SMR plot
-ggplot(df5, aes(x=mmyy,y=SMR, group=1)) + geom_line() + ylim(0.5, 1) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + geom_vline(xintercept = "2020-03", linetype="dotted",color = "blue", size=1) + annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
+SMR = ggplot(df5, aes(x=date,y=SMR, group=1)) + 
+      geom_line() + 
+      ylim(0.5, 1) + 
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+      geom_vline(xintercept = "2020-03", linetype="dotted",color = "blue", size=1) + 
+      annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
 
 
 
