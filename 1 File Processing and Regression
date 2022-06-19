@@ -56,8 +56,20 @@ df5=df4 %>%
     group_by(month, year) %>%
     summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
     arrange(year, month)
+    
+#Generate valid time stamp for each month
+library(zoo)
+df5$date=as.Date(as.yearmon(df5$date))
 
+#SMR plot
 ggplot(df5, aes(x=mmyy,y=SMR, group=1)) + geom_line() + ylim(0.5, 1) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + geom_vline(xintercept = "2020-03", linetype="dotted",color = "blue", size=1) + annotate(geom="text", x="2020-10", y=1,label="pandemic period",color="red")
+
+
+
+
+
+
+
 
 #compute LOS from ICU ad + dc time
 df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
