@@ -1,4 +1,4 @@
-library(dplyr)
+library(tidyverse)
 
 df1=.xls
 
@@ -47,6 +47,7 @@ df4= filter(df3, !df3$AP3_SUBCODE  %in%
 df4 = filter(df4, df4$READMITTED == 0)
 
 #generate table 1
+catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "VENTILATED", "INOTROP_IND","RENAL_IND")
 tab = CreateTableOne(data = df4, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","DIED_HOSP"), strata= "pandemicperiod")
 ---------------------------------------
 
@@ -79,6 +80,7 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 
 ts=lm(SMR ~ series + pandperiod + pandseries, df5)
+
 library(stargazer)
 tab=stargazer(ts, 
 +           type="text",
@@ -91,7 +93,7 @@ tab=stargazer(ts,
 --------------------------
 
 
-
+<ignore below>
 
 
 #compute LOS from ICU ad + dc time
