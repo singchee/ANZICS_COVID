@@ -6,8 +6,8 @@ df1=.xls
 df2=select(df1, c(PatientID, HospitalClassification, 
                   JurisdictionName,postcode, AGE, ELECT,  SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, ICU_AD_DTM, ICU_HRS, 
-                  HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ICU_OUTCM, ANZRODIsSMR, ANZRODRiskOfDeath, 
-                  ANZRODRiskofDeath_old, PANDEMIC, VENTILATED, FRAILTY))
+                  HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ANZRODIsSMR, ANZRODRiskOfDeath, 
+                  ANZRODRiskofDeath_old, Apache2Score, Apache3Score, PANDEMIC, VENTILATED, FRAILTY))
 
 
 
