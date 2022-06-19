@@ -64,7 +64,10 @@ df5$date=as.Date(zoo::as.yearmon(df5$date))
 #generate pandemic period and time series labels
 df5=df5 %>%
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
+    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n())) %>%
+
+df5$series= 1:nrow(df5)
+
 
 #SMR plot
 ggplot(df5, aes(x=date,y=SMR, group=1)) + 
@@ -74,6 +77,14 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
     geom_smooth(method = "lm", aes(group=pandperiod)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
+
+
+
+--------------------------
+
+
+
+
 
 #compute LOS from ICU ad + dc time
 df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
