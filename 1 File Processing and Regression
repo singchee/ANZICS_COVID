@@ -126,12 +126,27 @@ for(i in 1:nrow(dataset_ewma))
 {
     dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
     dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]))
-
-}
+    dataset_ewma$sd_ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * startingVar, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * dataset_ewma$sd_ewma_rod[i-1])
+    dataset_ewma$ucl[i] = dataset_ewma$ewma_rod[i] + SD * sqrt(dataset_ewma$sd_ewma_rod[i])
+		dataset_ewma$lcl[i] = dataset_ewma$ewma_rod[i] - SD * sqrt(dataset_ewma$sd_ewma_rod[i])
+    
+    }
+ 
+ 
  dataset_ewma %>%
-+     ggplot(aes(x = series, y = ewma_actual)) +
-+     geom_line(size = 1.5)
-
+   ggplot(aes(x = series, y = ewma_actual, colour = "Observed Mortality")) +
+   geom_line(size = 1.5) +
+   geom_line(aes(y = ewma_rod, colour = "Predicted Risk of Death"), size = 1) +
+   geom_line(aes(y = ucl, colour = "3SD from Predicted Risk of Death"), size = 1) +
+   geom_line(aes(y = lcl, colour = "3SD from Predicted Risk of Death"), size = 1) +
+   scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
+	 scale_y_continuous(limits = c(0,0.2), breaks = seq(0, 0.7, 0.1), labels = seq(0, 0.7, 0.1)*100, expand = c(0,0)) +
+	 scale_x_continuous(expand = c(0,0)) +
+   ylab("Exponentially Weighted Moving Average") +
+	 xlab("Admission Number")
+   
+   
+   
 <ignore below>
 
 
