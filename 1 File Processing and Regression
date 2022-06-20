@@ -107,6 +107,29 @@ linked= merge(x=df4, y=select(df5, c("date", "pandperiod", "series", "pandseries
 m = glm(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + SiteID, data=linked, family=binomial)
 summary(m)
 
+----------------------------------
+#EWMA
+
+ewma_dataset <- df4 %>%
+     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA) %>%
+     arrange(ICU_AD_DTM) %>%
+     mutate(series = seq(1, nrow(.), 1))
+
+weight = 0.005
+target = 0.50 
+SD = 3 
+startingVar = 0
+
+
+#assign weights to each patient ROD/observed mortality. Generate UCL and LCL
+for(i in 1:nrow(dataset_ewma)) 
+    {
+      dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$pred[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$pred[i]))
+     dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$adm[i]==1, target * (1 - weight) + (weight * dataset_ewma$actual[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weigth * dataset_ewma$actual[i]))
+     
+     }
+
+
 <ignore below>
 
 
