@@ -123,12 +123,14 @@ startingVar = 0
 
 #assign weights to each patient ROD/observed mortality. Generate UCL and LCL
 for(i in 1:nrow(dataset_ewma)) 
-    {
-      dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$pred[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$pred[i]))
-     dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$adm[i]==1, target * (1 - weight) + (weight * dataset_ewma$actual[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weigth * dataset_ewma$actual[i]))
-     
-     }
+{
+    dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
+    dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]))
 
+}
+ dataset_ewma %>%
++     ggplot(aes(x = series, y = ewma_actual)) +
++     geom_line(size = 1.5)
 
 <ignore below>
 
