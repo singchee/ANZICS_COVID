@@ -1,4 +1,6 @@
 library(tidyverse)
+library(lubridate)
+library(zoo)
 
 df1=.xls
 
@@ -115,11 +117,10 @@ ewma_dataset <- df4 %>%
      arrange(ICU_AD_DTM) %>%
      mutate(series = seq(1, nrow(.), 1))
 
-weight = 0.005
-target = 0.50 
-SD = 3 
-startingVar = 0
-
+weight = 0.005 #the lower the number the greater weight given to the previous values (ie smoothes the graph) - ANZICS uses 0.005, Alternative is to scale this based on the number of events displayed 
+target = 0.50 #starting value on y axis (?start at mortality for previous time period sampled)
+SD = 3 # sets the control limits
+startingVar = 0 #typically set to zero (but not necessarily -  if set to expected var of popn gives funnel type pic)
 
 #assign weights to each patient ROD/observed mortality. Generate UCL and LCL
 for(i in 1:nrow(dataset_ewma)) 
@@ -148,53 +149,6 @@ for(i in 1:nrow(dataset_ewma))
    
    
 <ignore below>
-
-
-#compute LOS from ICU ad + dc time
-df1$los = as.numeric(difftime(df1$icu_ds_dtm ,df1$icu_ad_dtm , units = c("days")))
-
-
-#recoding values 
-df1$diedhosp = ifelse(df1$== xxx | df1$xyz == 1, 1, 0)
-
-#recode pregancy - replace NA to 0 first
-df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
-df2 = filter(df2, preg_stat != 1 & preg_stat !=3)
-#selecting based on exclusions criteria 
-df2 = filter(df1, sex== "M" & 
-             age>= 18 & 
-             preg_stat == "1")
-
-#remove rows with NAs
-df1=filter(df1, !is.na(df1$age))
-
-df1$diedever = ifelse(is.na(df1$DeathDate)== "TRUE", "0", "1")
-df2$preg_stat = ifelse(is.na(df2$preg_stat), 0, 1)
-df1$died_hosp[is.na(df1$died_hosp)] = 0
-
-
-
-
-#descriptives
-#print summary of data
-write.csv(summary(data), "summary.csv")
-
-
-
-#regression modelling
-#generate regression model for binary outcome (mortality)
-glm.binary = glm(died_hosp ~ age + ap3diag, 
-                  data=df1, 
-                  family=binomial)
-
-#generate regression model for continuous outcome (eg. RALOS)
-lm.cont = lm(ralos ~ age + ap3diag, 
-               data=df1, 
-               family=gaussian)
-
-#get P values
-summary(glm.binary)
-
 #get 95% CI
 confint(glm.binary)
 
