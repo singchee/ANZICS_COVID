@@ -2,55 +2,57 @@ library(tidyverse)
 library(lubridate)
 library(zoo)
 
+
 df1=.xls
 
 #choose columns of interest
 df2=select(df1, c(PatientID, HospitalClassification, 
                   JurisdictionName,postcode,SiteID, AGE, ELECT, SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
-                  PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, ICU_AD_DTM, ICU_HRS, 
-                  HOSP_OUTCM, HOSP_HRS, DIED_ICU, DIED_HOSP, ANZRODIsSMR, ANZRODRiskOfDeath, 
-                  ANZRODRiskofDeath_old, Apache2Score, Apache3Score, PANDEMIC, VENTILATED, FRAILTY))
+                  PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, 
+		  ICU_AD_DTM, ICU_HRS,ICU_SRCE, ICU_OUTCM, DIED_ICU,
+                  HOSP_OUTCM, HOSP_HRS, DIED_HOSP,
+		  ANZRODIsSMR, ANZRODRiskOfDeath, 
+                  ANZRODRiskofDeath_old, Apache2Score, Apache3Score, PANDEMIC, FRAILTY))
 
 
 
 
-# replacing NAs with 0
-df2 = replace_na(df2, list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0))
+#Tidy dataset, replacing NAs with 0, Update ANZROD based on date ,  pandemic variable - admitted >= March 2020, state subgroup(VIC+NSW+ACT combined), and linking date
 
-#Select only those with SMR
-df3= filter(df2, df2$ANZRODIsSMR == 1)
+df2 = df2 %>% 
+	
+	replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0)) %>%
+	mutate(ANZROD = ifelse(ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), ANZRODRiskOfDeath, ANZRODRiskofDeath_old),
+		pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
+		state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
+		date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-")
+		)
 
-#Select ANZROD based on 1Jan 2020 (old vs new)
-df3$ANZROD = ifelse(df3$ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), df3$ANZRODRiskOfDeath, df3$ANZRODRiskofDeath_old)
 
-#Generate pandemic variable - admitted >= March 2020
-df3$pandemicperiod = ifelse(df3$ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0)
+#Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
+df3 = df2 %>% 
+	filter(ANZRODIsSMR == 1) %>%
+	filter(JurisdictionName !="NZ") %>%
+	filter(PANDEMIC !=1|is.na(PANDEMIC)) %>% 
+	filter(!AP3_SUBCODE  %in% 
+	      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
+	      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
+	      301.05, 
+	      404.04, 
+	      501.07, 503.02, 
+	      704.12, 
+	      901.08, 
+	      1101.10 , 1102.02)) %>%
+      filter(READMITTED == 0) %>%
+      filter(ICU_OUTCM != 5) %>%
+      filter(ICU_SRCE !=5 & ICU_SRCE !=6)
 
-#Generate NSW+Vic+ACT flag
-df3$state_subgroup = ifelse(df3$JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0)
-#Remove NZ 
-df3 = filter(df3, df3$JurisdictionName !="NZ")
-
-#Apply exclusions
-
-#Remove pandmic codes
-df4= filter(df3, df3$PANDEMIC  !=1)
-df4= filter(df3, !df3$AP3_SUBCODE  %in% 
-      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
-      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
-      301.05, 
-      404.04, 
-      501.07, 503.02, 
-      704.12, 
-      901.08, 
-      1101.10 , 1102.02))
-     
-#remove readmissions
-df4 = filter(df4, df4$READMITTED == 0)
 
 #generate table 1
+
+library(tableone)
 catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "VENTILATED", "INOTROP_IND","RENAL_IND")
-tab = CreateTableOne(data = df4, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","DIED_HOSP"), strata= "pandemicperiod")
+tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "DIED_ICU","DIED_HOSP"), strata= "pandemicperiod")
 ---------------------------------------
 #SMR based interrupted time series with monthly granularity
 #group data by month and calculate SMR
