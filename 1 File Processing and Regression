@@ -114,10 +114,13 @@ summary(m)
 ----------------------------------
 #EWMA
 
-ewma_dataset <- df4 %>%
-     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA) %>%
-     arrange(ICU_AD_DTM) %>%
-     mutate(series = seq(1, nrow(.), 1))
+dataset_ewma=df4 %>% 
+     group_by(year, week=week(ICU_AD_DTM)) %>% 
+     summarise (ANZROD=mean(ANZROD), DIED_HOSP=mean(DIED_HOSP)) %>%
+     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA)
+
+dataset_ewma$series = seq(1, nrow(dataset_ewma), 1)
+
 
 weight = 0.005 #the lower the number the greater weight given to the previous values (ie smoothes the graph) - ANZICS uses 0.005, Alternative is to scale this based on the number of events displayed 
 target = 0.50 #starting value on y axis (?start at mortality for previous time period sampled)
@@ -125,6 +128,7 @@ SD = 3 # sets the control limits
 startingVar = 0 #typically set to zero (but not necessarily -  if set to expected var of popn gives funnel type pic)
 
 #assign weights to each patient ROD/observed mortality. Generate UCL and LCL
+
 for(i in 1:nrow(dataset_ewma)) 
 {
     dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
