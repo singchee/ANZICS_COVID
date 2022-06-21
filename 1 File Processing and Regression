@@ -147,7 +147,7 @@ for(i in 1:nrow(dataset_ewma))
    geom_line(aes(y = ucl, colour = "3SD from Predicted Risk of Death"), size = 1) +
    geom_line(aes(y = lcl, colour = "3SD from Predicted Risk of Death"), size = 1) +
    scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
-	 scale_y_continuous(limits = c(0,0.2), breaks = seq(0, 0.7, 0.1), labels = seq(0, 0.7, 0.1)*100, expand = c(0,0)) +
+	scale_y_continuous(limits = c(0.05,0.1), breaks = seq(0.05, 0.1, 0.01), labels = seq(0.05, 0.1, 0.01)*100) +
 	 scale_x_continuous(expand = c(0,0)) +
    ylab("Exponentially Weighted Moving Average") +
 	 xlab("Admission Number")
