@@ -79,9 +79,11 @@ df4$date=as.Date(zoo::as.yearmon(df4$yymm))
 #generate pandemic period and time series labels
 df4=df4 %>%
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
+    group_by(pandperiod) %>%
+    mutate(pandseries = seq_along(pandperiod))
 
 df4$series= 1:nrow(df4)
+df4$pandseries=ifelse(df4$pandperiod == "0", "0", df4$pandseries)
 
 
 #SMR plot
@@ -122,6 +124,23 @@ sub_state$date=as.Date(zoo::as.yearmon(df4$yymm))
 sub_state=sub_state %>%
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
     mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
+    
+    
+ sub_state=sub_state %>%
+    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
+    group_by(pandperiod) %>%
+    mutate(pandseries = seq_along(pandperiod))
+
+sub_state$pandseries=ifelse(sub_state$pandperiod == "0", "0", sub_state$pandseries)
+sub_state$series= 1:nrow(sub_state)
+
+ ggplot(sub_state, aes(x=date,y=SMR, group=1)) + 
+    geom_line() + 
+    ylim(0.8, 1.1) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+    geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
+    geom_smooth(method = "lm", aes(group=pandperiod)) +
+    annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 --------------------------
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
