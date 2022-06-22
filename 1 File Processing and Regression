@@ -20,13 +20,13 @@ df2=select(df1, c(PatientID, HospitalClassification,
 #Tidy dataset, replacing NAs with 0, Update ANZROD based on date ,  pandemic variable - admitted >= March 2020, state subgroup(VIC+NSW+ACT combined), and linking date
 
 df2 = df2 %>% 
-	
-	replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0)) %>%
-	mutate(ANZROD = ifelse(ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), ANZRODRiskOfDeath, ANZRODRiskofDeath_old),
-		pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
-		state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
-		date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-")
-		)
+     
+     replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0)) %>%
+     mutate(ANZROD = ifelse(ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), ANZRODRiskOfDeath, ANZRODRiskofDeath_old),
+            pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
+            state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
+            date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-"),
+            SEX = recode(SEX, NULL="O", I="O"))
 
 
 #Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
@@ -51,12 +51,14 @@ df3 = df2 %>%
 #generate table 1
 
 library(tableone)
-catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "VENTILATED", "INOTROP_IND","RENAL_IND")
+catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "INOTROP_IND","RENAL_IND", "ECMO_IND", "INV_IND","ELECT_SURG" )
 tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
                                          "Apache2Score", "Apache3Score","ANZROD", 
                                           "DIED_ICU","DIED_HOSP", 
                                           "HOSP_HRS", "ICU_HRS", 
-                                          "ECMO_IND", "INV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod")
+                                          "ECMO_IND", "INV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
+nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD")					  
+print(tab, nonnormal=nonnormalVars)
 ---------------------------------------
 #SMR based interrupted time series with monthly granularity
 #group data by month and calculate SMR
