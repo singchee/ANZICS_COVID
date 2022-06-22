@@ -53,11 +53,10 @@ df3 = df2 %>%
 library(tableone)
 catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "VENTILATED", "INOTROP_IND","RENAL_IND")
 tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
-			"Apache2Score", "Apache3Score", "ANZROD", 
-			"DIED_ICU","DIED_HOSP", 
-			"HOSP_HRS", "ICU_HRS", 
-			ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, 
-			), strata= "pandemicperiod")
+                                         "Apache2Score", "Apache3Score","ANZROD", 
+                                          "DIED_ICU","DIED_HOSP", 
+                                          "HOSP_HRS", "ICU_HRS", 
+                                          "ECMO_IND", "INV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod")
 ---------------------------------------
 #SMR based interrupted time series with monthly granularity
 #group data by month and calculate SMR
