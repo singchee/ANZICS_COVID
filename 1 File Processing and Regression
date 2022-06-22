@@ -57,7 +57,7 @@ tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
                                           "DIED_ICU","DIED_HOSP", 
                                           "HOSP_HRS", "ICU_HRS", 
                                           "ECMO_IND", "INV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
-nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD")					  
+nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")					  
 print(tab, nonnormal=nonnormalVars)
 ---------------------------------------
 #SMR based interrupted time series with monthly granularity
