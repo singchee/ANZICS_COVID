@@ -117,6 +117,7 @@ library(lme4)
 m = glmer(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + HospitalClassification + (1|SiteID), data=linked, family=binomial, control = glmerControl(optimizer = "bobyqa"),
     nAGQ = 10))
 summary(m)
+write.csv(summary(m)$coefficients, file="coeff.csv")
 
 ----------------------------------
 #EWMA
