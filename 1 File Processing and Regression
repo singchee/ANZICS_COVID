@@ -63,27 +63,31 @@ print(tab, nonnormal=nonnormalVars)
 #SMR based interrupted time series with monthly granularity
 #group data by month and calculate SMR
 df5=df4 %>%
-    mutate(year = year(AD_date), month = month(AD_date)) %>%
+    mutate(year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
     group_by(month, year) %>%
     summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
-    arrange(year, month)
-    
+    arrange(year, month) 
+
+df4$yymm=paste(df4$year, df4$month, sep="-")
+df4$date = as.Date(
+
+
 #Generate valid time stamp for each month
 library(zoo)
-df5$date=as.Date(zoo::as.yearmon(df5$date))
+df4$date=as.Date(zoo::as.yearmon(df4$yymm))
 
 #generate pandemic period and time series labels
-df5=df5 %>%
+df4=df4 %>%
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n())) %>%
+    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
 
-df5$series= 1:nrow(df5)
+df4$series= 1:nrow(df4)
 
 
 #SMR plot
 ggplot(df5, aes(x=date,y=SMR, group=1)) + 
     geom_line() + 
-    ylim(0.5, 1) + 
+    ylim(0.8, 1) + 
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
     geom_smooth(method = "lm", aes(group=pandperiod)) +
@@ -105,7 +109,19 @@ tab=stargazer(ts,
 +           omit.stat="all",
 +           digits=2)
 
-
+#Repeat for NSW+VIC+ACT
+sub_state=df3 %>%
+	filter(state_subgroup =="1") %>%
+    mutate(year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
+    group_by(month, year) %>%
+    summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
+    arrange(year, month) 
+    
+sub_state$yymm=paste(sub_state$year, sub_state$month, sep="-")
+sub_state$date=as.Date(zoo::as.yearmon(df4$yymm))
+sub_state=sub_state %>%
+    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
+    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
 --------------------------
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
