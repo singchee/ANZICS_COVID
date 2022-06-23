@@ -86,6 +86,15 @@ df4=df4 %>%
 df4$series= 1:nrow(df4)
 df4$pandseries=ifelse(df4$pandperiod == "0", "0", df4$pandseries)
 
+#Generate daily SMR calculations + timeseries
+smr_day = dataset_ewma_overall %>%
+     group_by(AD_Date = as.Date(ICU_AD_DTM)) %>%
+     summarise(SMR = mean(DIED_HOSP)/mean(ANZRODRiskofDeath_old), 
+               ANZROD_old = mean(ANZRODRiskofDeath_old), 
+	                      hosp_mortality = mean(DIED_HOSP)) %>%
+     mutate(pandperiod = if_else(AD_Date>=as.Date("2020-03-01"), 1, 0), series= 1:nrow(.)) %>%
+     group_by(pandperiod) %>%
+     mutate(pandseries = seq_along(pandperiod))
 
 #SMR plot
 ggplot(df5, aes(x=date,y=SMR, group=1)) + 
