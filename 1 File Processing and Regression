@@ -6,15 +6,16 @@ library(zoo)
 df1=.xls
 
 #choose columns of interest
-df2=select(df1, c(PatientID, HospitalClassification, 
+df2= df %>%
+	select(c(PatientID, HospitalClassification, 
                   JurisdictionName,postcode,SiteID, AGE, ELECT, SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, 
 		  ICU_AD_DTM, ICU_HRS,ICU_SRCE, ICU_OUTCM, DIED_ICU,
                   HOSP_OUTCM, HOSP_HRS, DIED_HOSP,
 		  ANZRODIsSMR, ANZRODRiskOfDeath, 
-                  ANZRODRiskofDeath_old, Apache2Score, Apache3Score, PANDEMIC, FRAILTY))
-
-
+                  ANZRODRiskofDeath_old, Apache2Score, Apache3Score, PANDEMIC, FRAILTY)) %>%
+		  
+	  mutate(as.factor(DIED_HOSP), as.factor(pandperiod), as.numeric(pandseries), as.factor(state_subgroup), as.factor(HospitalClassification), as.factor(SiteID))
 
 
 #Tidy dataset, replacing NAs with 0, Update ANZROD based on date ,  pandemic variable - admitted >= March 2020, state subgroup(VIC+NSW+ACT combined), and linking date
