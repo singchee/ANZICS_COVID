@@ -102,7 +102,7 @@ acf(resid(ts))
 
 #build time series
 ts=lm(SMR ~ series + pandperiod + pandseries, df5)
-
+confint(m_its)
 library(stargazer)
 tab=stargazer(ts, 
 +           type="text",
