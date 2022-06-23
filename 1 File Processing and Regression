@@ -145,13 +145,18 @@ sub_state$series= 1:nrow(sub_state)
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
 
-df4$date=as.Date(as.yearmon(paste(df4$year, df4$month, sep="-"))) #date linkage key
+df4 %>% 
+	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-"))) #date linkage key
 
 linked= merge(x=df4, y=select(df5, c("date", "pandperiod", "series", "pandseries")), by ="date", all.x=TRUE)
 
+linked = linked %>%
+     mutate(series = series.y) %>%
+     select(-series.x, -series.y)
+
 library(lme4)
 m = glmer(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + HospitalClassification + (1|SiteID), data=linked, family=binomial, control = glmerControl(optimizer = "bobyqa"),
-    nAGQ = 10))
+    nAGQ = 10)
 summary(m)
 write.csv(summary(m)$coefficients, file="coeff.csv")
 
@@ -175,7 +180,7 @@ target = 0.07 #starting value on y axis (?start at mortality for previous time p
 SD = 3 # sets the control limits
 startingVar = 0 #typically set to zero (but not necessarily -  if set to expected var of popn gives funnel type pic)
 
-#assign weights to each patient ROD/observed mortality. Generate UCL and LCL
+#assign EWMA to each patient ROD/observed mortality. Generate UCL and LCL
 
 for(i in 1:nrow(dataset_ewma)) 
 {
@@ -188,18 +193,17 @@ for(i in 1:nrow(dataset_ewma))
     }
  
  
- dataset_ewma %>%
-   ggplot(aes(x = series, y = ewma_actual, colour = "Observed Mortality")) +
-   geom_line(size = 1.5) +
-   geom_line(aes(y = ewma_rod, colour = "Predicted Risk of Death"), size = 1) +
-   geom_line(aes(y = ucl, colour = "3SD from Predicted Risk of Death"), size = 1) +
-   geom_line(aes(y = lcl, colour = "3SD from Predicted Risk of Death"), size = 1) +
-   scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
-	scale_y_continuous(limits = c(0.05,0.1), breaks = seq(0.05, 0.1, 0.01), labels = seq(0.05, 0.1, 0.01)*100) +
-	 scale_x_continuous(expand = c(0,0)) +
-   ylab("Exponentially Weighted Moving Average") +
-	 xlab("Admission Number")
-   
+dataset_ewma %>%
+     ggplot(aes(x = series, y = ewma_rod, colour = "Predicted Risk of Death")) +
+     geom_line(size=0.8)+
+     geom_line(aes(y = ucl, colour = "3SD from Predicted Risk of Death"), size = 0.8) +
+     geom_line(aes(y = lcl, colour = "3SD from Predicted Risk of Death"), size = 0.8) +
+     geom_line(aes(y = ewma_actual, colour = "Observed Mortality"), size = 0.8) +
+     scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
+     scale_y_continuous(limits = c(0.05,0.09), breaks = seq(0.05, 0.09, 0.01), labels = seq(0.05, 0.09, 0.01)*100) +
+     scale_x_continuous(expand = c(0,0), labels=scales::comma) + 
+    ylab("Exponentially Weighted Moving Average(Risk %)") +
+     xlab("Admission Number")
    
    
 <ignore below>
