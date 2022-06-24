@@ -1,36 +1,22 @@
+dataset_ewma=df3 %>% 
++     arrange(ICU_AD_DTM) %>% 
++     mutate(series = seq(1, nrow(.), 1), ANZROD=ANZRODRiskofDeath_old)
 
-dataset_ewma=df4 %>% 
-     group_by(year, week=week(ICU_AD_DTM)) %>% 
-     summarise (ANZROD=mean(ANZROD), DIED_HOSP=mean(DIED_HOSP)) %>%
-     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA)
-
-dataset_ewma=df4 %>% 
-     arrange(ICU_AD_DTM) %>% 
-     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA)
-
-dataset_ewma$series = seq(1, nrow(dataset_ewma), 1)
-
+#set parameters for EWMA
 
 weight = 0.00005 #the lower the number the greater weight given to the previous values (ie smoothes the graph) - ANZICS uses 0.005, Alternative is to scale this based on the number of events displayed 
 target = 0.07 #starting value on y axis (?start at mortality for previous time period sampled)
 SD = 3 # sets the control limits
 startingVar = 0 #typically set to zero (but not necessarily -  if set to expected var of popn gives funnel type pic)
 
-#assign EWMA to each patient ROD/observed mortality. Generate UCL and LCL
-
-for(i in 1:nrow(dataset_ewma)) 
-{
-    dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
-    dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]))
-    dataset_ewma$sd_ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * startingVar, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * dataset_ewma$sd_ewma_rod[i-1])
-    dataset_ewma$ucl[i] = dataset_ewma$ewma_rod[i] + SD * sqrt(dataset_ewma$sd_ewma_rod[i])
-		dataset_ewma$lcl[i] = dataset_ewma$ewma_rod[i] - SD * sqrt(dataset_ewma$sd_ewma_rod[i])
-    
-    }
- 
-
+#Calculate EWMA for ROD, observed and UCL+LCL. a = reference column/b=cumulative value to be derived
 dataset_ewma = dataset_ewma %>%
-    mutate(ewma_rod2 = accumulate(ANZROD, function(a,b){a * (1-weight)+(weight * b) }, .init = 0.07)[-1])
+     mutate(ewma_rod = accumulate(ANZROD, function(a,b){a * (1-weight)+(weight * b) }, .init = target)[-1],
+            ewma_actual = accumulate(DIED_HOSP, function(a,b){a * (1-weight)+(weight * b)}, .init = target)[-1],
+            sd_ewma_rod = weight * weight * ANZROD * (1-ANZROD) + (1-weight) * (1-weight) * startingVar, 
+            ucl = ewma_rod + SD * sqrt(sd_ewma_rod),
+            lcl = ewma_rod - SD * sqrt(sd_ewma_rod))
+
 
 dataset_ewma %>%
      ggplot(aes(x = series, y = ewma_rod, colour = "Predicted Risk of Death")) +
@@ -43,3 +29,16 @@ dataset_ewma %>%
      scale_x_continuous(expand = c(0,0), labels=scales::comma) + 
     ylab("Exponentially Weighted Moving Average(Risk %)") +
      xlab("Admission Number")
+     
+     
+#Old code below    
+for(i in 1:nrow(dataset_ewma)) 
+{
+    dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
+    dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]))
+    dataset_ewma$sd_ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * startingVar, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * dataset_ewma$sd_ewma_rod[i-1])
+    dataset_ewma$ucl[i] = dataset_ewma$ewma_rod[i] + SD * sqrt(dataset_ewma$sd_ewma_rod[i])
+		dataset_ewma$lcl[i] = dataset_ewma$ewma_rod[i] - SD * sqrt(dataset_ewma$sd_ewma_rod[i])
+    
+    }
+ 
