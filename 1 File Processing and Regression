@@ -121,6 +121,12 @@ tab=stargazer(ts,
 +           omit.stat="all",
 +           digits=2)
 
+#segmented analysis
+m <- lm(SMR ~ series, data = smr_month) 
+segmented.fit = segmented(m, seg.Z =~series, psi=50)
+summary(segmented.fit)
+smr_month$segment = smr_month %>% ifelse(series > 47, 1, 0)
+
 #Repeat for NSW+VIC+ACT
 sub_state=df3 %>%
 	filter(state_subgroup =="1") %>%
@@ -144,13 +150,14 @@ sub_state=sub_state %>%
 sub_state$pandseries=ifelse(sub_state$pandperiod == "0", "0", sub_state$pandseries)
 sub_state$series= 1:nrow(sub_state)
 
- ggplot(sub_state, aes(x=date,y=SMR, group=1)) + 
-    geom_line() + 
-    ylim(0.8, 1.1) + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-    geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
-    geom_smooth(method = "lm", aes(group=pandperiod)) +
-    annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
+ggplot(smr_month, aes(x=as.Date(YYMM),y=SMR, group=1)) + 
+     geom_line() + 
+     ylim(0.8, 1) + 
+     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
+     geom_smooth(method = "lm", aes(group=pandperiod)) +
+     geom_smooth(method = "lm", aes(group=segment), linetype="dashed", color ="red") +
+     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 --------------------------
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
