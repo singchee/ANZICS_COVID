@@ -105,6 +105,18 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     geom_smooth(method = "lm", aes(group=pandperiod)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 
+#SMR plot with Segmented analysis
+ggplot(smr_month, aes(x=as.Date(YYMM),y=SMR, group=1)) + 
+     geom_line() + 
+     ylim(0.8, 1) + 
+     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
+     geom_smooth(method = "lm", aes(group=pandperiod)) +
+     geom_smooth(method = "lm", aes(group=segment), linetype="dashed", color ="red") +
+     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red") +
+     scale_x_date(date_labels="%b %y",date_breaks  ="1 month")+
+    xlab("Date of Admission")
+
 #check for autocorrelation
 install.packages("lmtest")
 acf(resid(ts))
