@@ -236,7 +236,10 @@ for(i in 1:nrow(dataset_ewma))
     
     }
  
- 
+
+dataset_ewma = dataset_ewma %>%
+    mutate(ewma_rod2 = accumulate(ANZROD, function(a,b){a * (1-weight)+(weight * b) }, .init = 0.07)[-1])
+
 dataset_ewma %>%
      ggplot(aes(x = series, y = ewma_rod, colour = "Predicted Risk of Death")) +
      geom_line(size=0.8)+
