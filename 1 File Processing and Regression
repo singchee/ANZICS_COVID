@@ -111,11 +111,16 @@ ggplot(smr_month, aes(x=as.Date(YYMM),y=SMR, group=1)) +
      ylim(0.8, 1) + 
      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
      geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
+     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red") +
      geom_smooth(method = "lm", aes(group=pandperiod)) +
      geom_smooth(method = "lm", aes(group=segment), linetype="dashed", color ="red") +
+    
+     geom_vline(xintercept = as.Date("2020-12-01"), linetype="dotted",color = "blue", size=1) +
      annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red") +
+     
      scale_x_date(date_labels="%b %y",date_breaks  ="1 month")+
-    xlab("Date of Admission")
+     xlab("Date of Admission")
+
 
 #check for autocorrelation
 install.packages("lmtest")
