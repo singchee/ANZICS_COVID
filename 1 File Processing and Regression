@@ -207,50 +207,6 @@ tidy(m,conf.int=TRUE,exponentiate=TRUE,effects="fixed")
 ----------------------------------
 #EWMA
 
-dataset_ewma=df4 %>% 
-     group_by(year, week=week(ICU_AD_DTM)) %>% 
-     summarise (ANZROD=mean(ANZROD), DIED_HOSP=mean(DIED_HOSP)) %>%
-     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA)
-
-dataset_ewma=df4 %>% 
-     arrange(ICU_AD_DTM) %>% 
-     mutate(ewma_rod = NA, ewma_actual = NA, sd_ewma_rod = NA, ucl = NA, lcl = NA)
-
-dataset_ewma$series = seq(1, nrow(dataset_ewma), 1)
-
-
-weight = 0.00005 #the lower the number the greater weight given to the previous values (ie smoothes the graph) - ANZICS uses 0.005, Alternative is to scale this based on the number of events displayed 
-target = 0.07 #starting value on y axis (?start at mortality for previous time period sampled)
-SD = 3 # sets the control limits
-startingVar = 0 #typically set to zero (but not necessarily -  if set to expected var of popn gives funnel type pic)
-
-#assign EWMA to each patient ROD/observed mortality. Generate UCL and LCL
-
-for(i in 1:nrow(dataset_ewma)) 
-{
-    dataset_ewma$ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$ANZROD[i]), dataset_ewma$ewma_rod[i-1] * (1 - weight) + (weight * dataset_ewma$ANZROD[i]))
-    dataset_ewma$ewma_actual[i] = ifelse(dataset_ewma$series[i]==1, target * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]), dataset_ewma$ewma_actual[i-1] * (1 - weight) + (weight * dataset_ewma$DIED_HOSP[i]))
-    dataset_ewma$sd_ewma_rod[i] = ifelse(dataset_ewma$series[i]==1, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * startingVar, weight * weight * dataset_ewma$ANZROD[i] * (1 - dataset_ewma$ANZROD[i]) + (1 - weight) * (1 - weight) * dataset_ewma$sd_ewma_rod[i-1])
-    dataset_ewma$ucl[i] = dataset_ewma$ewma_rod[i] + SD * sqrt(dataset_ewma$sd_ewma_rod[i])
-		dataset_ewma$lcl[i] = dataset_ewma$ewma_rod[i] - SD * sqrt(dataset_ewma$sd_ewma_rod[i])
-    
-    }
- 
-
-dataset_ewma = dataset_ewma %>%
-    mutate(ewma_rod2 = accumulate(ANZROD, function(a,b){a * (1-weight)+(weight * b) }, .init = 0.07)[-1])
-
-dataset_ewma %>%
-     ggplot(aes(x = series, y = ewma_rod, colour = "Predicted Risk of Death")) +
-     geom_line(size=0.8)+
-     geom_line(aes(y = ucl, colour = "3SD from Predicted Risk of Death"), size = 0.8) +
-     geom_line(aes(y = lcl, colour = "3SD from Predicted Risk of Death"), size = 0.8) +
-     geom_line(aes(y = ewma_actual, colour = "Observed Mortality"), size = 0.8) +
-     scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
-     scale_y_continuous(limits = c(0.05,0.09), breaks = seq(0.05, 0.09, 0.01), labels = seq(0.05, 0.09, 0.01)*100) +
-     scale_x_continuous(expand = c(0,0), labels=scales::comma) + 
-    ylab("Exponentially Weighted Moving Average(Risk %)") +
-     xlab("Admission Number")
    
    
 <ignore below>
