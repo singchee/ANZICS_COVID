@@ -1,6 +1,7 @@
-
 #SMR based interrupted time series with monthly granularity
+
 #group data by month and calculate SMR
+
 smr_month=df4 %>%
     mutate(year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
     group_by(month, year) %>%
@@ -8,15 +9,12 @@ smr_month=df4 %>%
     arrange(year, month) 
 
 library(zoo)
-smr_month_other = smr_month_other %>% 
-     mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-"))))
-
-
-#generate pandemic period and time series labels
-df4=df4 %>%
+smr_month = 
+	smr_month %>% 
+	mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")))) %>%	
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
     group_by(pandperiod) %>%
-    mutate(pandseries = seq_along(pandperiod))
+    mutate(pandseries = seq_along(pandperiod), series =1:nrow(.))
 
 df4$series= 1:nrow(df4)
 df4$pandseries=ifelse(df4$pandperiod == "0", "0", df4$pandseries)
