@@ -9,9 +9,11 @@
      summarise(SMR = mean(DIED_HOSP)/mean(ANZRODRiskofDeath_old)) %>%
      arrange(date) %>%
      mutate(year = year(date), month = month(date)) %>% 
-    mutate(date_mth=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")) )
+     mutate(date_mth=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")) )
 
 library(zoo)
+
+#assign valid dates to each month
 
 smr_month = smr_day %>%
      mutate(year = year(date), month = month(date)) %>%
@@ -20,12 +22,12 @@ smr_month = smr_day %>%
      mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-"))))
 
 
-
+#assign time series variables
 smr_month = 
 	smr_month %>% 
 	mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")))) %>%	
     mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    group_by(pandperiod) %>%
+    group_by(pandperiod) %>% 
     mutate(pandseries = seq_along(pandperiod), series =1:nrow(.))
 
 df4$series= 1:nrow(df4)
