@@ -1,14 +1,26 @@
 #SMR based interrupted time series with monthly granularity
 
-#group data by month and calculate SMR
+#group data by day month and calculate SMR
 
-smr_month=df4 %>%
-    mutate(year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
-    group_by(month, year) %>%
-    summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
-    arrange(year, month) 
+ smr_day=ds3 %>%
+     filter(state_subgroup== 0) %>%
+     mutate(date=as.Date(ICU_AD_DTM),year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
+     group_by(date) %>%
+     summarise(SMR = mean(DIED_HOSP)/mean(ANZRODRiskofDeath_old)) %>%
+     arrange(date) %>%
+     mutate(year = year(date), month = month(date)) %>% 
+    mutate(date_mth=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")) )
 
 library(zoo)
+
+smr_month = smr_day %>%
+     mutate(year = year(date), month = month(date)) %>%
+     group_by(month, year) %>%
+     summarise(SD = sd(SMR), SMR_mth = mean(SMR), n=n(), se=SD/n) %>%
+     mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-"))))
+
+
+
 smr_month = 
 	smr_month %>% 
 	mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")))) %>%	
@@ -37,9 +49,6 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
     geom_smooth(method = "lm", aes(group=pandperiod)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
-
-#SMR plot with Segmented analysis
-date>=as.Date("2020-03-01"), 1, 0
 
 
 #check for autocorrelation
