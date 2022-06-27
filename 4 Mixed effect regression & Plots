@@ -1,1 +1,22 @@
 
+#patient level multivariate regression analysis
+#Link in time series variables for patient level analysis
+
+df4 %>% 
+	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-"))) #date linkage key
+
+linked= merge(x=df4, y=select(df5, c("date", "pandperiod", "series", "pandseries")), by ="date", all.x=TRUE)
+
+linked = linked %>%
+     mutate(series = series.y) %>%
+     select(-series.x, -series.y)
+
+library(lme4)
+m = glmer(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + HospitalClassification + (1|SiteID), data=linked, family=binomial, control = glmerControl(optimizer = "bobyqa"),
+    nAGQ = 10)
+summary(m)
+write.csv(summary(m)$coefficients, file="coeff.csv")]
+
+library(broom.mixed)
+tidy(m,conf.int=TRUE,exponentiate=TRUE,effects="fixed")
+
