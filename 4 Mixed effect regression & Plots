@@ -4,25 +4,43 @@
 
 df4 %>% 
 	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-")), series = as.factor(series)) #date linkage key, convert month to factor for OR analysis
-	
+
+library(broom.mixed)
 library(lme4)
+
 m2other = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + as.factor(series) + HospitalClassification + (1|SiteID), data=ds3_other, family=binomial, control = glmerControl(optimizer = "bobyqa"),
           nAGQ = 0)
- 
+	  
 m2other %>%
-         fixef() %>%
-         enframe()%>%
-          filter(str_detect(name, "series")) %>%
-          mutate(value= exp(value), series = seq_along(1:nrow(.))) %>%
-          ggplot(aes(series, value))+
-          geom_point() +
-          geom_smooth()+
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)))  %>% #generate monthly sequence
+    ggplot(aes(series, estimate))+ #plot
+    geom_point() +
+    geom_smooth() +
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
+    scale_x_continuous(breaks = scales::breaks_width(2))+
+    geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) +
+    ylim(0.5, 1.5)
+
+lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
+
+plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassificationRural / Regional", "HospitalClassificationTertiary")) #plot effects of hospitaltype
+
+#ALTERNATIVE
+
+m2NSWVICACT %>%
+     tidy(effects = "fixed", conf.int = TRUE) %>%
+     filter(str_detect(term, "series")) %>%
+     mutate(across(c(estimate, starts_with("conf")), exp)) %>%
+     ggplot(aes(term, estimate)) +
+     geom_point() + 
+     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+     geom_smooth()+
           scale_x_continuous(breaks = scales::breaks_width(2))+
-          geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) 
- 
-se <- sqrt(diag(vcov(m)))
-tab <- cbind(Est = fixef(m), LL = fixef(m) - 1.96 * se, UL = fixef(m) + 1.96 * se)   
-exp(tab) #convert to OR
+          geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1)
+   
 
 summary(m)
 write.csv(summary(m)$coefficients, file="coeff.csv")]
