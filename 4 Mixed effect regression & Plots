@@ -2,9 +2,11 @@
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
 
-df4 %>% 
-	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-")), series = as.factor(series)) #date linkage key, convert month to factor for OR analysis
-
+df3 = df3 %>%
+    mutate(ANZROD = ANZRODRiskofDeath_old, 
+           yymm = zoo::as.yearmon(ICU_AD_DTM), 
+           series = as.numeric(factor(yymm))) #create month-based sequence
+	 
 library(broom.mixed)
 library(lme4)
 
