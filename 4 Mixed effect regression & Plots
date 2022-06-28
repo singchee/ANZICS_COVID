@@ -3,20 +3,18 @@
 #Link in time series variables for patient level analysis
 
 df4 %>% 
-	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-"))) #date linkage key
-
-linked= merge(x=df4, y=select(df5, c("date", "pandperiod", "series", "pandseries")), by ="date", all.x=TRUE)
-
-linked = linked %>%
-     mutate(series = series.y) %>%
-     select(-series.x, -series.y)
-
+	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-")), series = as.factor(series)) #date linkage key, convert month to factor for OR analysis
+	
 library(lme4)
 m = glmer(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + HospitalClassification + (1|SiteID), data=linked, family=binomial, control = glmerControl(optimizer = "bobyqa"),
     nAGQ = 10)
+    
+se <- sqrt(diag(vcov(m)))
+tab <- cbind(Est = fixef(m), LL = fixef(m) - 1.96 * se, UL = fixef(m) + 1.96 * se)   
+exp(tab) #convert to OR
+
 summary(m)
 write.csv(summary(m)$coefficients, file="coeff.csv")]
 
 library(broom.mixed)
 tidy(m,conf.int=TRUE,exponentiate=TRUE,effects="fixed")
-
