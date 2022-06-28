@@ -1,0 +1,13 @@
+
+#segmented analysis
+smr_month=smr_month %>%
+     group_by(segment) %>%
+     mutate(segseries = seq_along(segment)) %>%
+     mutate(segseries = if_else(segment == "0", "0", as.character(segseries))) %>%
+     mutate(segseries = as.numeric(segseries))
+
+m <- lm(SMR ~ series, data = smr_month) 
+segmented.fit = segmented(m, seg.Z =~series, psi=50)
+summary(segmented.fit)
+smr_month$segment = smr_month %>% ifelse(series > 47, 1, 0)
+ts=lm(SMR ~ segment + segseries + series, smr_month)
