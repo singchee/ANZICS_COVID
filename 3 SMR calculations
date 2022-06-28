@@ -6,6 +6,11 @@ df4=df3 %>%
     group_by(pandemicperiod) %>%
     mutate(pandseries = seq_along(pandemicperiod)) %>%
     mutate(pandseries = ifelse(pandemicperiod == "0", 0, pandseries))
+    
+   
+#build time series
+ts=glm(DIED_HOSP ~ series + pandemicperiod + pandseries, df5)
+confint(m_its)
 
 
 #group data by day month and calculate SMR
