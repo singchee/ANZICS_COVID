@@ -47,6 +47,7 @@ df3 = df2 %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6)
+      filter(year(ICU_AD_DTM)<2022)
 
 
 #generate table 1
