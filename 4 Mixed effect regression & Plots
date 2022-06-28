@@ -6,9 +6,20 @@ df4 %>%
 	mutate(date=as.Date(zoo::as.yearmon(paste(year, month, sep="-")), series = as.factor(series)) #date linkage key, convert month to factor for OR analysis
 	
 library(lme4)
-m = glmer(DIED_HOSP ~ ANZROD + pandperiod + series + pandseries + state_subgroup + HospitalClassification + (1|SiteID), data=linked, family=binomial, control = glmerControl(optimizer = "bobyqa"),
-    nAGQ = 10)
-    
+m2other = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + as.factor(series) + HospitalClassification + (1|SiteID), data=ds3_other, family=binomial, control = glmerControl(optimizer = "bobyqa"),
+          nAGQ = 0)
+ 
+m2other %>%
+         fixef() %>%
+         enframe()%>%
+          filter(str_detect(name, "series")) %>%
+          mutate(value= exp(value), series = seq_along(1:nrow(.))) %>%
+          ggplot(aes(series, value))+
+          geom_point() +
+          geom_smooth()+
+          scale_x_continuous(breaks = scales::breaks_width(2))+
+          geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) 
+ 
 se <- sqrt(diag(vcov(m)))
 tab <- cbind(Est = fixef(m), LL = fixef(m) - 1.96 * se, UL = fixef(m) + 1.96 * se)   
 exp(tab) #convert to OR
