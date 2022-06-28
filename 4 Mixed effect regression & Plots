@@ -5,7 +5,7 @@
 df3 = df3 %>%
     mutate(ANZROD = ANZRODRiskofDeath_old, 
            yymm = zoo::as.yearmon(ICU_AD_DTM), 
-           series = as.numeric(factor(yymm))) #create month-based sequence
+           series = as.factor(as.numeric(factor(yymm)))) #create month-based sequence
 	 
 library(broom.mixed)
 library(lme4)
