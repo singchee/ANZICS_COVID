@@ -49,7 +49,18 @@ df3 = df2 %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
       filter(year(ICU_AD_DTM)<'2022')
      
-
+#recode all AP3 codes into diagnostic categories
+df3 = df3 %>%
+    mutate(APACHE_diag = 
+        case_when(
+            AP3DIAG == 1202 | AP3DIAG == 1203 | AP3DIAG == 1204 | AP3DIAG == 1205 | AP3DIAG == 1211 | AP3DIAG == 1213 ~ "CVS",
+            AP3DIAG == 1206 | AP3DIAG == 1207 | AP3DIAG == 1208 | AP3DIAG == 1209 | AP3DIAG == 1210 | AP3DIAG == 1212 ~ "CardiacSurg", 
+            (AP3DIAG >= 200 & AP3DIAG <= 299) | (AP3DIAG >= 1300 & AP3DIAG <= 1399) ~"Respiratory",
+            (AP3DIAG >= 300 & AP3DIAG <= 399) | (AP3DIAG >= 1400 & AP3DIAG <= 1499) ~ "GastroIntestinal",
+            (AP3DIAG >= 400 & AP3DIAG <= 499) | (AP3DIAG >= 1500 & AP3DIAG <= 1599) ~ "Neuro",
+            AP3DIAG >= 500 & AP3DIAG <= 599 ~"Sepsis",
+            (AP3DIAG >= 600 & AP3DIAG <= 699) | (AP3DIAG >= 1600 & AP3DIAG <= 1699) ~ "Trauma",
+            (AP3DIAG >= 700 & AP3DIAG <= 1199) | (AP3DIAG >= 1700) ~ "Other"))
 
 #generate table 1
 
