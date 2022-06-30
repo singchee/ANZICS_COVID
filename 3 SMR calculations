@@ -1,13 +1,22 @@
 
 
-df4=df3 %>%
+df3=df3 %>%
     arrange(ICU_AD_DTM) %>%
     mutate(pandemicperiod = dplyr::if_else(as.Date(ICU_AD_DTM)>=as.Date("2020-03-01"), 1, 0)) %>%
     group_by(pandemicperiod) %>%
     mutate(pandseries = seq_along(pandemicperiod)) %>%
     mutate(pandseries = ifelse(pandemicperiod == "0", 0, pandseries))
     
-   
+  
+df3= df3 %>% 
+	arrange(ICU_AD_DTM) %>%
+     	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
+     	group_by(date_month) %>%
+     	dplyr::mutate(series_month = cur_group_id()) %>% # generate month sequence
+	group_by(pandemicperiod) %>%
+	   mutate(series_pand = match(date_month, unique(date_month))) %>%
+     mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
+  
 #build time series
 ts=glm(DIED_HOSP ~ series + pandemicperiod + pandseries, df5)
 confint(m_its)
