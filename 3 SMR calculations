@@ -1,4 +1,4 @@
-
+#assign time series labels
 
 df3=df3 %>%
     arrange(ICU_AD_DTM) %>%
@@ -16,10 +16,31 @@ df3= df3 %>%
 	group_by(pandemicperiod) %>%
 	   mutate(series_pand = match(date_month, unique(date_month))) %>%
      mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
-  
+ 
+df3 = within(df3, HospitalClassification = relevel(HospitalClassification, ref = 4))
+ summary
+ 
 #build time series
-ts=glm(DIED_HOSP ~ series + pandemicperiod + pandseries, df5)
+ts=glm(DIED_HOSP ~ series_month + series_pand + pandemicperiod + ANZROD + HospitalClassification, df3, family=binomial)
+
 confint(m_its)
+
+install.packages("lmtest")
+
+#check for autocorrelation
+
+#build time series
+ts=lm(SMR ~ series + pandperiod + pandseries, df5)
+confint(m_its)
+library(stargazer)
+tab=stargazer(ts, 
++           type="text",
++           dep.var.labels = ("SMR"),
++           column.labels = ("Results"),
++           covariate.labels = c("Time", "Pandemic Period Start", "Time since Pandemic Started"),
++           omit.stat="all",
++           digits=2)
+
 
 
 #group data by day month and calculate SMR
@@ -75,21 +96,6 @@ ggplot(df5, aes(x=date,y=SMR, group=1)) +
     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
 
 
-#check for autocorrelation
-install.packages("lmtest")
-acf(resid(ts))
-
-#build time series
-ts=lm(SMR ~ series + pandperiod + pandseries, df5)
-confint(m_its)
-library(stargazer)
-tab=stargazer(ts, 
-+           type="text",
-+           dep.var.labels = ("SMR"),
-+           column.labels = ("Results"),
-+           covariate.labels = c("Time", "Pandemic Period Start", "Time since Pandemic Started"),
-+           omit.stat="all",
-+           digits=2)
 
 
 #Repeat for NSW+VIC+ACT
