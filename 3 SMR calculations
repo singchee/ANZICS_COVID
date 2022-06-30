@@ -28,6 +28,21 @@ confint(m_its)
 install.packages("lmtest")
 
 #check for autocorrelation
+library(car)
+durbinWatsonTest(ts)
+act(resid(ts))
+
+tab=stargazer(ts, 
++           type="text",
++           dep.var.labels = ("SMR"),
++           column.labels = ("Results"),
++           covariate.labels = c("Time", "Pandemic Period Start", "Time since Pandemic Started"),
++           omit.stat="all",
++           digits=2)
+
+
+#IGNORE BELOW#
+
 
 #build time series
 ts=lm(SMR ~ series + pandperiod + pandseries, df5)
