@@ -6,7 +6,7 @@ df3= df3 %>%
 	arrange(ICU_AD_DTM) %>%
      	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
      	group_by(date_month) %>%
-     	dplyr::mutate(series_month = cur_group_id()) %>% # generate month sequence
+     	dplyr::mutate(series_month = as.factor(cur_group_id())) %>% # generate month sequence
 	group_by(pandemicperiod) %>%
 	   mutate(series_pand = match(date_month, unique(date_month))) %>%
      mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
@@ -17,9 +17,9 @@ library(lme4)
 
 glm_data = df3 %>%
 		filter(state_subgroup == "0")
-
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + as.factor(series) + HospitalClassification + (1|SiteID), data=glm_data, family=binomial, control = glmerControl(optimizer = "bobyqa"),
-          nAGQ = 1)
+		
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month-1 + (1|SiteID), data=glm_data, family=binomial, control = glmerControl(optimizer = "bobyqa"),
+               nAGQ = 0)
 
 m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
