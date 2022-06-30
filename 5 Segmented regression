@@ -7,9 +7,9 @@ plot_all= m1_all %>%
           filter(str_detect(term, "series")) %>% #filter out predictors that have "series" 
          mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
           mutate(series = seq_along(1:nrow(.))) 
-          
-seg.fit = glm(estimate ~ term, data=ME_plot, family=gaussian)
+
+seg.fit = lm(estimate ~ series, data= m1_plot)
 
 segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=45) #guesstimated change in around month 45 from visual plots
-
+slope(segmented.fit)
 summary(segmented.fit)
