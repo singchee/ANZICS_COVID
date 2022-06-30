@@ -19,8 +19,10 @@ library(lme4)
 glm_data = df3 %>%
 		filter(state_subgroup == "0")
 		
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=glm_data, family=binomial, control = glmerControl(optimizer = "bobyqa"),
-               nAGQ = 0)
+		
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + relevel(HospitalClassification, ref="Tertiary")*pandemicperiod + as.numeric(series_month) + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"),
+nAGQ = 0)
+
 
 m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
