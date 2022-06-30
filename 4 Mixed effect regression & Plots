@@ -44,6 +44,11 @@ lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list
 
 plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassificationRural / Regional", "HospitalClassificationTertiary")) #plot effects of hospitaltype
 
+#generate interaction terms and plot interaction terms
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandemicperiod + as.numeric(series_month) + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"),
++ nAGQ = 0)
+plot_model(m1_all, terms = c("HospitalClassificationMetropolitan:pandemicperiod", "HospitalClassificationRural / Regional:pandemicperiod", "HospitalClassificationPrivate:pandemicperiod"))
+
 #ALTERNATIVE
 
 m2NSWVICACT %>%
