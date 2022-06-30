@@ -53,7 +53,7 @@ df3 = df2 %>%
 df3 = df3 %>%
     mutate(APACHE_diag = 
         case_when(
-            AP3DIAG == 1202 | AP3DIAG == 1203 | AP3DIAG == 1204 | AP3DIAG == 1205 | AP3DIAG == 1211 | AP3DIAG == 1213 ~ "CVS",
+            (AP3DIAG >= 100 & AP3DIAG <= 199 ) | AP3DIAG == 1202 | AP3DIAG == 1203 | AP3DIAG == 1204 | AP3DIAG == 1205 | AP3DIAG == 1211 | AP3DIAG == 1213 ~ "CVS",
             AP3DIAG == 1206 | AP3DIAG == 1207 | AP3DIAG == 1208 | AP3DIAG == 1209 | AP3DIAG == 1210 | AP3DIAG == 1212 ~ "CardiacSurg", 
             (AP3DIAG >= 200 & AP3DIAG <= 299) | (AP3DIAG >= 1300 & AP3DIAG <= 1399) ~"Respiratory",
             (AP3DIAG >= 300 & AP3DIAG <= 399) | (AP3DIAG >= 1400 & AP3DIAG <= 1499) ~ "GastroIntestinal",
