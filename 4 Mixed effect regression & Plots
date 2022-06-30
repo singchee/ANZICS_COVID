@@ -23,7 +23,7 @@ m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + as.factor(series) + HospitalC
 
 m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series")) %>% #filter out predictors that have "series" 
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
     mutate(series = seq_along(1:nrow(.)))  %>% #generate monthly sequence
     ggplot(aes(series, estimate))+ #plot
