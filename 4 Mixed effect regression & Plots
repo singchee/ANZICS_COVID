@@ -22,6 +22,10 @@ glm_data = df3 %>%
 m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandemicperiod + as.numeric(series_month) + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"),
 nAGQ = 0)
 
+#building a ME with interaction terms between pandemic period and trends + hospital mortality
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandemicperiod + as.numeric(series_month)*pandemicperiod + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"),
++ nAGQ = 0)
+
 m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
