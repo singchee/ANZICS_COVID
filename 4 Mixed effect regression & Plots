@@ -10,17 +10,7 @@ df3= df3 %>%
 	group_by(pandemicperiod) %>%
 	   mutate(series_pand = match(date_month, unique(date_month))) %>%
      mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
-     
- df3= df3 %>%  
-     mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
-     group_by(date_month) %>%
-     dplyr::mutate(series_month = cur_group_id()) %>%
-     group_by(date, pandemic period) %>%
-
-df3 = df3 %>%
-    mutate(ANZROD = ANZRODRiskofDeath_old, 
-           yymm = zoo::as.yearmon(ICU_AD_DTM), 
-           series = as.factor(as.numeric(factor(yymm)))) #create month-based sequence
+  
 	 
 library(broom.mixed)
 library(lme4)
