@@ -54,6 +54,10 @@ m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandem
 p = plot_model(m1_all, terms = c("HospitalClassificationMetropolitan:pandemicperiod", "HospitalClassificationRural / Regional:pandemicperiod", "HospitalClassificationPrivate:pandemicperiod"))
 p + ylim(0.75, 1.25)
 
+#determine siteID effects
+SiteID_effects = SiteID_effects %>%
+    broom.mixed::tidy(m1_all, effects = "ran_vals", conf.int = TRUE) %>%
+    mutate(across(c(estimate, starts_with("conf")), exp))
 
 #ALTERNATIVE
 
