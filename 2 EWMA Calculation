@@ -1,6 +1,7 @@
-dataset_ewma=df3 %>% 
+dataset_ewma=ungroup(df3) %>% 
+ 
      arrange(ICU_AD_DTM) %>% 
-     mutate(series = seq(1, nrow(.), 1), ANZROD=ANZRODRiskofDeath_old)
+    mutate(series = 1:n(), ANZROD=ANZRODRiskofDeath_old)
 
 #set parameters for EWMA
 
