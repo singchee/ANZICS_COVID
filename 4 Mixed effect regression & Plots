@@ -2,6 +2,12 @@
 #patient level multivariate regression analysis
 #Link in time series variables for patient level analysis
 
+ df3= df3 %>%  
+     mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
+     group_by(date_month) %>%
+     dplyr::mutate(series_month = cur_group_id()) %>%
+     group_by(date, pandemic period) %>%
+
 df3 = df3 %>%
     mutate(ANZROD = ANZRODRiskofDeath_old, 
            yymm = zoo::as.yearmon(ICU_AD_DTM), 
