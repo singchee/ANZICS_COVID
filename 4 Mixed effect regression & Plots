@@ -47,7 +47,9 @@ plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassifi
 #generate interaction terms and plot interaction terms
 m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandemicperiod + as.numeric(series_month) + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"),
 + nAGQ = 0)
-plot_model(m1_all, terms = c("HospitalClassificationMetropolitan:pandemicperiod", "HospitalClassificationRural / Regional:pandemicperiod", "HospitalClassificationPrivate:pandemicperiod"))
+p = plot_model(m1_all, terms = c("HospitalClassificationMetropolitan:pandemicperiod", "HospitalClassificationRural / Regional:pandemicperiod", "HospitalClassificationPrivate:pandemicperiod"))
+p + ylim(0.75, 1.25)
+
 
 #ALTERNATIVE
 
