@@ -16,10 +16,6 @@ df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref 
 library(broom.mixed)
 library(lme4)
 
-glm_data = df3 %>%
-		filter(state_subgroup == "0")
-
-
 #building a ME with interaction terms between pandemic period and trends + hospital mortality
 
 m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + pandemicperiod + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
