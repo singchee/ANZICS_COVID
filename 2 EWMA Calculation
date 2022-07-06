@@ -28,10 +28,10 @@ dataset_ewma %>%
      scale_colour_manual(name = "", values = c("lightblue","red","blue"), labels = c("3SD from Predicted Risk of Death","Observed Mortality","Predicted Risk of Death")) +
      scale_y_continuous(limits = c(0.05,0.09), breaks = seq(0.05, 0.09, 0.01), labels = seq(0.05, 0.09, 0.01)*100) +
      scale_x_continuous(expand = c(0,0), labels=scales::comma) + 
-    ylab("Exponentially Weighted Moving Average(Risk %)") +
+     ylab("Exponentially Weighted Moving Average(Risk %)") +
      xlab("Admission Number") +
-         geom_vline(xintercept = 470984, linetype="dotted",color = "blue", size=1) +
-    annotate(geom="text", x=45, y=1.2,label="1st Admission of Pandemic Period",color="Black")
+     geom_vline(xintercept = 470984, linetype="dotted",color = "blue", size=1) +
+     annotate("text", x=500000, y=0.08,label="1st Admission of Pandemic Period")
      
      
 #Old code below    
