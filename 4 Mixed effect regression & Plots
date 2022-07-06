@@ -22,8 +22,7 @@ glm_data = df3 %>%
 
 #building a ME with interaction terms between pandemic period and trends + hospital mortality
 
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification*pandemicperiod + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
-
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + pandemicperiod + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 #patient level estimates
 predictions = predict(m1, df3, type="response")
 df4=cbind(df3, predictions=predictions)
