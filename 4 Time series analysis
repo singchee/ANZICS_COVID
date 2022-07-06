@@ -12,19 +12,8 @@ ts= est %>%
     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand)) #generate pandemic month series
 
 
-ts=glm(estimate ~ series + series_pand + pandemic, ts, family=gaussian())
+ts_model=glm(estimate ~ series + series_pand + pandemic, ts, family=gaussian())
 
-
-df3= df3 %>% 
-	arrange(ICU_AD_DTM) %>%
-     	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
-     	group_by(date_month) %>%
-     	dplyr::mutate(series_month = cur_group_id()) %>% # generate month sequence
-	group_by(pandemicperiod) %>%
-	   mutate(series_pand = match(date_month, unique(date_month))) %>%
-     mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
- 
-df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref = 4))
  
  
 #build time series
