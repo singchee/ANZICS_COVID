@@ -11,22 +11,17 @@ ts= est %>%
     mutate(series_pand = match(series, unique(series))) %>%
     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand)) #generate pandemic month series
 
-
-ts_model=glm(estimate ~ series + series_pand + pandemic, ts, family=gaussian())
-
- 
- 
-#build time series
-ts=glm(DIED_HOSP ~ series_month + series_pand + pandemicperiod + ANZROD + HospitalClassification, df3, family=binomial)
-
-confint(m_its)
-
-install.packages("lmtest")
-
 #check for autocorrelation
 library(car)
 durbinWatsonTest(ts)
 act(resid(ts))
+
+ts_model=glm(estimate ~ series + series_pand + pandemic, ts, family=gaussian())
+
+
+install.packages("lmtest")
+
+
 
 tab=stargazer(ts, 
 +           type="text",
