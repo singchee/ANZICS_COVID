@@ -1,5 +1,17 @@
 #assign time series labels
 
+#TS using adjusted OR
+m1_plot= m1_plot %>% 
+     mutate(
+        pandemic=ifelse(series < 39, 0, 1)) %>%
+     group_by(series) %>%
+     dplyr::mutate(
+         series_month = cur_group_id()) %>% # generate month sequence %>%
+     group_by(pandemic) %>%
+     mutate(series_pand = match(series, unique(series))) %>%
+     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand)) #generate pandemic month series
+
+ts=glm(estimate ~ series + series_pand + pandemic, m1_plot, family=binomial)
   
 df3= df3 %>% 
 	arrange(ICU_AD_DTM) %>%
