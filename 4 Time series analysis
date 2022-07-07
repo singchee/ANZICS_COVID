@@ -35,7 +35,9 @@ its %>%
 
 #ITS using its.analysis
 
-me_coeff=as.data.frame(me_coeff)
+itsa.model(data=as.data.frame(its), time="series", depvar="estimate", interrupt_var="pandperiod", alpha=0.05)
+
+
 
 #TS using adjusted from Mixef effect regression
 ts= est %>% 
