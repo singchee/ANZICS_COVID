@@ -1,4 +1,10 @@
 #assign time series labels
+#get monthly estimates from Mixed Effects regression
+m1_all %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.))) #generate monthly sequence
 
 #TS using adjusted from Mixef effect regression
 ts= est %>% 
