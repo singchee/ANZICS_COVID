@@ -1,5 +1,11 @@
 #assign time series labels
+#get estimates from ME regression without pandemic perioid
+
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+
+
 #get monthly estimates from Mixed Effects regression
+
 m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
