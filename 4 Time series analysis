@@ -1,16 +1,40 @@
 #assign time series labels
-#get estimates from ME regression without pandemic perioid
+
+
+#get estimates from ME regression without pandemic perioid adjustment
 
 mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
 
 #get monthly estimates from Mixed Effects regression
 
-mod_ts %>%
+its = mod_ts %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+
+
+#plotting adjusted 
+
+mod_ts %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)))  %>% #generate monthly sequence
+    ggplot(aes(series, estimate))+ #plot
+    geom_point() +
+    geom_smooth() +
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
+    scale_x_continuous(breaks = scales::breaks_width(2))+
+    geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) +
+    ylim(0.6, 1.4) + 
+    ylab("Adjusted Odds of Death") +
+    xlab("Month of Admission") +
+    ggtitle("Adjusted OR of Death Over Time (All Patients)")+
+    annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
+
+#ITS using its.analysis
 
 me_coeff=as.data.frame(me_coeff)
 
@@ -24,12 +48,6 @@ ts= est %>%
     group_by(pandemic) %>%
     mutate(series_pand = match(series, unique(series))) %>%
     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-
-
-mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old +  HospitalClassification + pandemicperiod + series_pand + series_month + 
-
-(1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
-
 
 #check for autocorrelation
 library(car)
