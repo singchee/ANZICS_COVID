@@ -52,13 +52,14 @@ ts= est %>%
 
 #check for autocorrelation
 library(car)
+install.packages("lmtest")
+
 durbinWatsonTest(ts)
+
 act(resid(ts))
 
-ts_model=glm(estimate ~ series + series_pand + pandemic, ts, family=gaussian())
-
-
-install.packages("lmtest")
+#build GLM model
+ts_model=glm(estimate ~ series + series_pand + pandperiod, its, family=gaussian())
 
 
 
