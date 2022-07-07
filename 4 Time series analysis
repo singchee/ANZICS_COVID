@@ -4,7 +4,7 @@ m1_all %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.))) #generate monthly sequence
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
 
 #TS using adjusted from Mixef effect regression
 ts= est %>% 
@@ -15,7 +15,7 @@ ts= est %>%
         series_month = cur_group_id()) %>% # generate month sequence %>%
     group_by(pandemic) %>%
     mutate(series_pand = match(series, unique(series))) %>%
-    mutate(series_pand = ifelse(pandemic == 0, 0, series_pand)) #generate pandemic month series
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
 
 
 mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old +  HospitalClassification + pandemicperiod + series_pand + series_month + 
