@@ -6,6 +6,8 @@ m1_all %>%
     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
 
+me_coeff=as.data.frame(me_coeff)
+
 #TS using adjusted from Mixef effect regression
 ts= est %>% 
     mutate(
