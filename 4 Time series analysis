@@ -9,19 +9,18 @@ mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + seri
 #get monthly estimates from Mixed Effects regression
 
 its = mod_ts %>%
-    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+     group_by(pandperiod) %>%
+     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
 
 
 #plotting adjusted 
 
-mod_ts %>%
-    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.)))  %>% #generate monthly sequence
+its %>%
     ggplot(aes(series, estimate))+ #plot
     geom_point() +
     geom_smooth() +
