@@ -5,7 +5,7 @@ library(zoo)
 library(forecast)
 
 #generate time series table based on monthly OR
-ts = ts(its[,3], frequency=12, start=c(2017,1))
+ts = ts(its[,3], frequency=12, start=c(2017,2)) #start from feb as Jan was  used for reference in mixed effects regression model
 ts
 
 #plot data
