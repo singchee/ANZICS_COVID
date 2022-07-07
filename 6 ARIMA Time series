@@ -1,0 +1,98 @@
+install.packages("astsa")
+install.packages("forecast")
+library(astsa)
+library(zoo)
+library(forecast)
+
+#generate time series table based on monthly OR
+ts = ts(its[,3], frequency=12, start=c(2017,1))
+ts
+
+#plot data
+options(scipen=5)
+plot(ts, ylim=c(0,1.2), type='l', col="blue", xlab="Month", ylab="OR Death")
+
+#view residuals
+acf2(ts, max.lag=12)
+acf2(ts, max.lag=24)
+
+#recheck check residuals with lagged differences removed
+acf2(diff(diff(ts,12)), max.lag=24)
+
+#create variable for "Step"
+step <- as.numeric(as.yearmon(time(ts))>='March 2020')
+step
+
+#create post-pandemic month series
+ramp <- append(rep(0,37), seq(1,22,1))
+ramp
+
+#generate ARIMA model with sesonablity, auto arima will determine best model parameters
+model1 <- auto.arima(ts, seasonal=TRUE, xreg=cbind(step,ramp), max.d=1, max.D=1, stepwise=FALSE, trace=TRUE)
+checkresiduals(model1)
+
+Box.test(model1$residuals, lag = 24, type = "Ljung-Box")
+summary(model1)
+
+
+#train model for forecasting - training set to interruption point
+model2 <- Arima(window(ts, end=c(2020,2)), order=c(0,1,1), seasonal=list(order=c(1,0,0), period=12))
+
+#generate forecasts and merge with original data
+fc <- forecast(model2, h=22)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=12)
+ts2 <- ts.union(ts, fc.ts)
+ts2
+
+plot(ts2, type="l", plot.type="s", col=c('blue','red'), xlab="Month", ylab="Dispensings", linetype=c("solid","dashed"), ylim=c(0.6,1.3))
+
+fc <- forecast(model2, h=22)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2014,1), frequency=12)
+ts.2 <- ts.union(ts, fc.ts)
+ts.2
+fc.ts <- ts(as.numeric(fc$mean), start=c(2017,1), frequency=12)
+quet.ts.2 <- ts.union(quet.ts, fc.ts)
+ts.2 <- ts.union(ts, fc.ts)
+ts.2
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=12)
+ts.2 <- ts.union(ts, fc.ts)
+ts.2
+plot(ts.2, type="l", plot.type="s", col=c('blue','red'), xlab="Month", ylab="OR", linetype=c("solid","dashed"), ylim=c(0.5,1.4))
+fc <- forecast(model2, h=22)
+fc <- forecast(model2, h=22)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=12)
+ts2 <- ts.union(ts, fc.ts)
+ts2
+plot(ts2, type="l", plot.type="s", col=c('blue','red'), xlab="Month", ylab="Dispensings", linetype=c("solid","dashed"), ylim=c(0.6,1.3))
+model2 <- Arima(window(ts, end=c(2020,3)), order=c(0,1,1), seasonal=list(order=c(1,0,0), period=12))
+model2 <- Arima(window(ts, end=c(2020,3)), order=c(0,1,1), seasonal=list(order=c(1,0,0), period=12))
+fc <- forecast(model2, h=12)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,4), frequency=21)
+ts2 <- ts.union(ts, fc.ts)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,4), frequency=22)
+ts2 <- ts.union(ts, fc.ts)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=22)
+ts2 <- ts.union(ts, fc.ts)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,4), frequency=20)
+ts2 <- ts.union(ts, fc.ts)
+ts
+ts2
+rm(ts2)
+ts2 <- ts.union(ts, fc.ts)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=20)
+ts2 <- ts.union(ts, fc.ts)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=21)
+ts2 <- ts.union(ts, fc.ts)
+model2 <- Arima(window(ts, end=c(2020,2)), order=c(0,1,1), seasonal=list(order=c(1,0,0), period=12))
+fc <- forecast(model2, h=12)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=12)
+ts2 <- ts.union(ts, fc.ts)
+ts2
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=18)
+ts2 <- ts.union(ts, fc.ts)
+fc <- forecast(model2, h=22)
+fc.ts <- ts(as.numeric(fc$mean), start=c(2020,3), frequency=12)
+ts2 <- ts.union(ts, fc.ts)
+ts2
+plot(ts2, type="l", plot.type="s", col=c('blue','red'), xlab="Month", ylab="Dispensings", linetype=c("solid","dashed"), ylim=c(0.6,1.3))
+View(df3)
