@@ -11,6 +11,12 @@ ts= est %>%
     mutate(series_pand = match(series, unique(series))) %>%
     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand)) #generate pandemic month series
 
+
+mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old +  HospitalClassification + pandemicperiod + series_pand + series_month + 
+
+(1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+
+
 #check for autocorrelation
 library(car)
 durbinWatsonTest(ts)
