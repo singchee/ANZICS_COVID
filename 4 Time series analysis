@@ -31,7 +31,14 @@ plot(ts_noseason)
 lines(lowess(ts_noseason))
 ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason))
 
-
+#add time series labels to seasonally adjusted data
+ts_noseason_df=ungroup(ts_noseason_df)
+ ts_noseason_df = ts_noseason_df %>%
+     mutate(series_month = 1:n(), pandemic = ifelse(series_month>=46, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+     group_by(pandemic) %>%
+     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand))
+ 
 
 #plotting adjusted 
 
@@ -51,13 +58,6 @@ its %>%
 
 #ITS using Linear regression 
 
-#create data with no seasonality
-ts_decom = decompose(ts)
-plot(ts_decom)
-ts_noseason = ts - ts_decom$seasonal #remove seasonal component
-plot(ts_noseason)
-lines(lowess(ts_noseason))
-ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason))
 
 #add in series labels
 ts_noseason_df = ts_noseason_df %>% 
