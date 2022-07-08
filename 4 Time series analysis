@@ -51,6 +51,29 @@ its %>%
     ggtitle("Adjusted OR of Death Over Time (All Patients)")+
     annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
 
+
+#ITS using Linear regression 
+
+#create data with no seasonality
+ts_decom = decompose(ts)
+plot(ts_decom)
+ts_noseason = ts - ts_decom$seasonal #remove seasonal component
+plot(ts_noseason)
+lines(lowess(ts_noseason))
+ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason))
+
+#add in series labels
+ts_noseason_df = ts_noseason_df %>% 
+     mutate(
+      pandemic = ifelse(date > as.Date("2020/3/1"),1, 0) %>%
+      series_month = seq_along(1:nrow(.))) %>% # generate month sequence
+      group_by(pandemic) %>%
+     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand))
+
+#build GLM model
+ts_model=glm(estimate ~ series + series_pand + pandperiod, ts_noseason_df, family=gaussian())
+
 #ITS using its.analysis
 
 itsa.model(data=as.data.frame(its), time="series", depvar="estimate", interrupt_var="pandperiod", alpha=0.05)
@@ -92,111 +115,3 @@ tab=stargazer(ts,
 
 #IGNORE BELOW#
 
-
-df3=df3 %>%
-    arrange(ICU_AD_DTM) %>%
-    mutate(pandemicperiod = dplyr::if_else(as.Date(ICU_AD_DTM)>=as.Date("2020-03-01"), 1, 0)) %>%
-    group_by(pandemicperiod) %>%
-    mutate(pandseries = seq_along(pandemicperiod)) %>%
-    mutate(pandseries = ifelse(pandemicperiod == "0", 0, pandseries))
-    
-#build time series
-ts=lm(SMR ~ series + pandperiod + pandseries, df5)
-confint(m_its)
-library(stargazer)
-tab=stargazer(ts, 
-+           type="text",
-+           dep.var.labels = ("SMR"),
-+           column.labels = ("Results"),
-+           covariate.labels = c("Time", "Pandemic Period Start", "Time since Pandemic Started"),
-+           omit.stat="all",
-+           digits=2)
-
-
-
-#group data by day month and calculate SMR
-
- smr_day=ds3 %>%
-     filter(state_subgroup== 0) %>%
-     mutate(date=as.Date(ICU_AD_DTM),year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
-     group_by(date) %>%
-     summarise(SMR = mean(DIED_HOSP)/mean(ANZRODRiskofDeath_old)) %>%
-     arrange(date) %>%
-     mutate(year = year(date), month = month(date)) %>% 
-     mutate(date_mth=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")) )
-
-library(zoo)
-
-#assign valid dates to each month
-
-smr_month = smr_day %>%
-     mutate(year = year(date), month = month(date)) %>%
-     group_by(month, year) %>%
-     summarise(SD = sd(SMR), SMR_mth = mean(SMR), n=n(), se=SD/n) %>%
-     mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-"))))
-
-
-#assign time series variables
-smr_month = 
-	smr_month %>% 
-	mutate(date=as.Date(zoo::as.yearmon(paste(.data$year, .data$month, sep="-")))) %>%	
-    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    group_by(pandperiod) %>% 
-    mutate(pandseries = seq_along(pandperiod), series =1:nrow(.))
-
-df4$series= 1:nrow(df4)
-df4$pandseries=ifelse(df4$pandperiod == "0", "0", df4$pandseries)
-
-#Generate daily SMR calculations + timeseries
-smr_day = dataset_ewma_overall %>%
-     group_by(AD_Date = as.Date(ICU_AD_DTM)) %>%
-     summarise(SMR = mean(DIED_HOSP)/mean(ANZRODRiskofDeath_old), 
-               ANZROD_old = mean(ANZRODRiskofDeath_old), 
-	                      hosp_mortality = mean(DIED_HOSP)) %>%
-     mutate(pandperiod = if_else(AD_Date>=as.Date("2020-03-01"), 1, 0), series= 1:nrow(.)) %>%
-     group_by(pandperiod) %>%
-     mutate(pandseries = seq_along(pandperiod))
-
-#SMR plot
-ggplot(df5, aes(x=date,y=SMR, group=1)) + 
-    geom_line() + 
-    ylim(0.8, 1) + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-    geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
-    geom_smooth(method = "lm", aes(group=pandperiod)) +
-    annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
-
-
-
-
-#Repeat for NSW+VIC+ACT
-sub_state=df3 %>%
-	filter(state_subgroup =="1") %>%
-    mutate(year = year(ICU_AD_DTM), month = month(ICU_AD_DTM)) %>%
-    group_by(month, year) %>%
-    summarise(SMR = mean(DIED_HOSP)/mean(ANZROD)) %>%
-    arrange(year, month) 
-    
-sub_state$yymm=paste(sub_state$year, sub_state$month, sep="-")
-sub_state$date=as.Date(zoo::as.yearmon(df4$yymm))
-sub_state=sub_state %>%
-    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    mutate (pandseries = ifelse(pandperiod == 0, 0, 1:n()))
-    
-    
- sub_state=sub_state %>%
-    mutate(pandperiod = dplyr::if_else(date>=as.Date("2020-03-01"), 1, 0)) %>%
-    group_by(pandperiod) %>%
-    mutate(pandseries = seq_along(pandperiod))
-
-sub_state$pandseries=ifelse(sub_state$pandperiod == "0", "0", sub_state$pandseries)
-sub_state$series= 1:nrow(sub_state)
-
-ggplot(smr_month, aes(x=as.Date(YYMM),y=SMR, group=1)) + 
-     geom_line() + 
-     ylim(0.8, 1) + 
-     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
-     geom_vline(xintercept = as.Date("2020-03-01"), linetype="dotted",color = "blue", size=1)+
-     geom_smooth(method = "lm", aes(group=pandperiod)) +
-     geom_smooth(method = "lm", aes(group=segment), linetype="dashed", color ="red") +
-     annotate(geom="text", x=as.Date("2020-10-01"), y=1,label="Pandemic period",color="red")
