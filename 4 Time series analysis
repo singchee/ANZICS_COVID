@@ -39,6 +39,8 @@ ts_noseason_df=ungroup(ts_noseason_df)
      mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
      mutate(series_pand = ifelse(pandemic == 0, 0, series_pand))
  
+ts_mod_noseason=glm(ts~ pandemic + series_month+series_pand, data=ts_noseason_df, family=gaussian())
+ summary(ts_mod_noseason)
 
 #plotting adjusted 
 
