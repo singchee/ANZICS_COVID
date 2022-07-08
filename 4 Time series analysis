@@ -18,6 +18,24 @@ its = mod_ts %>%
      mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
 
 
+#generate time series table based on monthly OR
+ts = ts(its[,3], frequency=12, start=c(2017,2)) #start from feb as Jan was  used for reference in mixed effects regression model
+ts
+
+#plot data
+options(scipen=5)
+plot(ts, ylim=c(0,1.2), type='l', col="blue", xlab="Month", ylab="OR Death")
+
+#create data with no seasonality
+ts_decom = decompose(ts)
+plot(ts_decom)
+ts_noseason = ts - ts_decom$seasonal #remove seasonal component
+plot(ts_noseason)
+lines(lowess(ts_noseason))
+ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason))
+
+
+
 #plotting adjusted 
 
 its %>%
