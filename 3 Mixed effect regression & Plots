@@ -19,11 +19,30 @@ library(lme4)
 
 m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
-#patient level estimates
-predictions = predict(m1, df3, type="response")
-df4=cbind(df3, predictions=predictions)
+#get monthly OR estimates 
+m1_coeff = 
+m1_all %>%
+     tidy(effects = "fixed", conf.int = TRUE) %>% #extraced fixed effect coefficients and CI
+     filter(str_detect(term, "series")) %>% #extract terms that refer to month series
+     mutate(across(c(estimate, starts_with("conf")), exp)) #convert to OR
 
-#get estimates 
+#Plot adjusted OR for death
+
+m1_coeff %>%
+     ggplot(aes(term, estimate)) + #plot
+     geom_point() + 
+     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+     geom_smooth()+
+    scale_x_continuous(breaks = scales::breaks_width(2))+
+    geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) +
+    ylim(0.6, 1.4) + 
+    ylab("Adjusted Odds of Death") +
+    xlab("Month of Admission") +
+    ggtitle("Adjusted OR of Death Over Time (All Patients)")+
+    annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
+
+
+
 lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
 
 plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassificationRural / Regional", "HospitalClassificationTertiary")) #plot effects of hospitaltype
