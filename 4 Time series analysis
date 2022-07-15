@@ -44,18 +44,6 @@ ts_mod_noseason=glm(ts~ pandemic + series_month+series_pand, data=ts_noseason_df
 
 #plotting adjusted 
 
-its %>%
-    ggplot(aes(series, estimate))+ #plot
-    geom_point() +
-    geom_smooth() +
-    geom_linerange(aes(ymin = conf.low, ymax = conf.high)) +
-    scale_x_continuous(breaks = scales::breaks_width(2))+
-    geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1) +
-    ylim(0.6, 1.4) + 
-    ylab("Adjusted Odds of Death") +
-    xlab("Month of Admission") +
-    ggtitle("Adjusted OR of Death Over Time (All Patients)")+
-    annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
 
 
 #ITS using Linear regression 
