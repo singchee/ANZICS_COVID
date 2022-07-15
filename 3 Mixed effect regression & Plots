@@ -1,6 +1,8 @@
 
 #patient level multivariate regression analysis
 
+#assign relevant series sequence
+
 df3= df3 %>% 
 	arrange(ICU_AD_DTM) %>%
      	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
@@ -9,26 +11,31 @@ df3= df3 %>%
 	group_by(pandemicperiod) %>%
 	   mutate(series_pand = match(date_month, unique(date_month))) %>%
      mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
-df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref = 4)) - set reference level
-  
+      
 	 
 library(broom.mixed)
 library(lme4)
 
-#building a ME with interaction terms between pandemic period and trends + hospital mortality
+#get estimates from ME regression without pandemic perioid adjustment
 
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
-#get monthly OR estimates 
-m1_coeff = 
-m1_all %>%
-     tidy(effects = "fixed", conf.int = TRUE) %>% #extraced fixed effect coefficients and CI
-     filter(str_detect(term, "series")) %>% #extract terms that refer to month series
-     mutate(across(c(estimate, starts_with("conf")), exp)) #convert to OR
+
+#get monthly estimates from Mixed Effects regression
+
+its = mod_ts %>%
+     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+     group_by(pandperiod) %>%
+     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
+
 
 #Plot adjusted OR for death
 
-m1_coeff %>%
+its %>%
      ggplot(aes(term, estimate)) + #plot
      geom_point() + 
      geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
@@ -42,8 +49,14 @@ m1_coeff %>%
     annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
 
 
-
 lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
+
+
+
+#building a ME with interaction terms between pandemic period and trends + hospital mortality
+
+df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref = 4)) #set reference level for hospitals
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
 plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassificationRural / Regional", "HospitalClassificationTertiary")) #plot effects of hospitaltype
 
