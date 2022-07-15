@@ -1,18 +1,6 @@
 
 #patient level multivariate regression analysis
 
-
-df3= df3 %>% 
-	arrange(ICU_AD_DTM) %>%
-     	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
-     	group_by(date_month) %>%
-     	dplyr::mutate(series_month = cur_group_id()) %>% # generate month sequence
-	group_by(pandemicperiod) %>%
-	   mutate(series_pand = match(date_month, unique(date_month))) %>%
-     mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
- 
-df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref = 4))
-
 df3= df3 %>% 
 	arrange(ICU_AD_DTM) %>%
      	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
@@ -29,7 +17,8 @@ library(lme4)
 
 #building a ME with interaction terms between pandemic period and trends + hospital mortality
 
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + pandemicperiod + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+
 #patient level estimates
 predictions = predict(m1, df3, type="response")
 df4=cbind(df3, predictions=predictions)
@@ -69,30 +58,4 @@ write.csv(summary(m)$coefficients, file="coeff.csv")]
 library(broom.mixed)
 tidy(m,conf.int=TRUE,exponentiate=TRUE,effects="fixed")
 
-
-
-------------
-
-#get 95% CI
-confint(glm.binary)
-
-#ROC modelling
-
-#generate predicted outcomes for dataset
-ROCpred = predict(glm.binary, 
-                  type='response')
-                  
-#assign observed outcomes to cases 
-pred = prediction(ROCpred, df1$died_hosp)
-
-#calculate model performance
-perf_auc = performance(pred, measure = "tpr", x.measure = "fpr")
-perf_acc= performance(pred, measure = "acc")
-max(perf_acc@y.values[[1]])
-
-#AUC Plots and reports
-plot(perf, col=rainbow(10))
-
-perf_auc = performance(pred, measure = "auc")
-perf_auc@y.values[[1]]
 
