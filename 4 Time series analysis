@@ -1,8 +1,5 @@
 #get estimates from ME regression without pandemic perioid adjustment
 
-mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
-
-
 #get monthly estimates from Mixed Effects regression
 
 its = mod_ts %>%
@@ -15,7 +12,7 @@ its = mod_ts %>%
      mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
 
 
-#generate time series table based on monthly OR
+#generate time series  based on monthly OR
 ts = ts(its[,3], frequency=12, start=c(2017,2)) #start from feb as Jan was  used for reference in mixed effects regression model
 ts
 
@@ -43,7 +40,8 @@ plot(ts_decom)
 ts_noseason = ts - ts_decom$seasonal #remove seasonal component
 plot(ts_noseason)
 lines(lowess(ts_noseason))
-ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason))
+
+ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason)) #convert to df for analysis
 
 #add time series labels to seasonally adjusted data
 ts_noseason_df=ungroup(ts_noseason_df)
