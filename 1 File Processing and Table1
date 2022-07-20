@@ -74,7 +74,9 @@ df3 = df3 %>%
             (AP3DIAG >= 400 & AP3DIAG <= 499) | (AP3DIAG >= 1500 & AP3DIAG <= 1599) ~ "Neuro",
             AP3DIAG >= 500 & AP3DIAG <= 599 ~"Sepsis",
             (AP3DIAG >= 600 & AP3DIAG <= 699) | (AP3DIAG >= 1600 & AP3DIAG <= 1699) ~ "Trauma",
-            (AP3DIAG >= 700 & AP3DIAG <= 1199) | (AP3DIAG >= 1700) | AP3DIAG == "0"  ~ "Other"))
+	    AP3DIAG >= 700 & AP3DIAG <= 799 ~ "Metabolic",
+	    AP3DIAG >= 900 & AP3DIAG <= 999 ~ "Renal",
+            (AP3DIAG >= 1000 & AP3DIAG <= 1199) | (AP3DIAG >= 800 & AP3DIAG <= 899) | AP3DIAG == "0"  ~ "Other"))
 
 #generate table 1
 
