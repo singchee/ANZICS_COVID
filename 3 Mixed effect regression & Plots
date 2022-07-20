@@ -30,7 +30,7 @@ its = mod_ts %>%
      mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
      group_by(pandperiod) %>%
      mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
+     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand), month= seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))
 
 
 #Plot adjusted OR for death
