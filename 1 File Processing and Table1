@@ -47,9 +47,9 @@ df3 = df2 %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
-      filter(year(ICU_AD_DTM)<'2022')
+      filter(year(ICU_AD_DTM)<'2022') 
      
-#get COVID cases
+#get COVID cases per month
 df3_covid = df2 %>% 
 	filter(ANZRODIsSMR == 1) %>%
 	filter(JurisdictionName !="NZ") %>%
@@ -66,7 +66,9 @@ df3_covid = df2 %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
-      filter(year(ICU_AD_DTM)<'2022')
+      filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/2/1")) %>% 
+      group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
+      summarize(sum=n())
 
 #recode all AP3 codes into diagnostic categories
 df3 = df3 %>%
