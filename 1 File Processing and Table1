@@ -55,14 +55,7 @@ df3_covid = df2 %>%
 	filter(JurisdictionName !="NZ") %>%
 	filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
 	filter(AP3_SUBCODE  %in% 
-	      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
-	      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
-	      301.05, 
-	      404.04, 
-	      501.07, 503.02, 
-	      704.12, 
-	      901.08, 
-	      1101.10 , 1102.02)) %>%
+	      c(204.02, 213.02)) %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
