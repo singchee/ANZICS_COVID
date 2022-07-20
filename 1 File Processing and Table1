@@ -49,6 +49,25 @@ df3 = df2 %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
       filter(year(ICU_AD_DTM)<'2022')
      
+#get COVID cases
+df3_covid = df2 %>% 
+	filter(ANZRODIsSMR == 1) %>%
+	filter(JurisdictionName !="NZ") %>%
+	filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
+	filter(AP3_SUBCODE  %in% 
+	      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
+	      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
+	      301.05, 
+	      404.04, 
+	      501.07, 503.02, 
+	      704.12, 
+	      901.08, 
+	      1101.10 , 1102.02)) %>%
+      filter(READMITTED == 0) %>%
+      filter(ICU_OUTCM != 5) %>%
+      filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
+      filter(year(ICU_AD_DTM)<'2022')
+
 #recode all AP3 codes into diagnostic categories
 df3 = df3 %>%
     mutate(APACHE_diag = 
