@@ -62,6 +62,36 @@ df3_covid = df2 %>%
       filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
       group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
       summarize(sum=n())
+      
+#get COVID cases per month for NSWVICACT   
+df3_covid_nswvicact = df2 %>% 
+    filter(state_subgroup == 1) %>%
+    filter(ANZRODIsSMR == 1) %>%
+    filter(JurisdictionName !="NZ") %>%
+    filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
+    filter(AP3_SUBCODE  %in% 
+               c(204.02, 213.02)) %>%
+    filter(READMITTED == 0) %>%
+    filter(ICU_OUTCM != 5) %>%
+    filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
+    filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
+    group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
+    summarize(sum=n())
+
+#get COVID cases per month for other states   
+df3_covid_nswvicact = df2 %>% 
+    filter(state_subgroup == 0) %>%
+    filter(ANZRODIsSMR == 1) %>%
+    filter(JurisdictionName !="NZ") %>%
+    filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
+    filter(AP3_SUBCODE  %in% 
+               c(204.02, 213.02)) %>%
+    filter(READMITTED == 0) %>%
+    filter(ICU_OUTCM != 5) %>%
+    filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
+    filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
+    group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
+    summarize(sum=n())
 
 #recode all AP3 codes into diagnostic categories
 df3 = df3 %>%
