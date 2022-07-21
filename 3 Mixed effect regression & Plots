@@ -24,19 +24,18 @@ mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + seri
 
 #get monthly estimates from Mixed Effects regression
 
-its = mod_ts %>%
+its = m1_all %>%
      tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
      filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
      mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
      mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
      group_by(pandperiod) %>%
      mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
+     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+     ungroup() %>%
+     mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
+     left_join(df3_covid, by="month")
 
-
-its$month = as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))
-
-its=left_join(its, df3_covid, by="month")
 
 
 #Plot adjusted OR for death
