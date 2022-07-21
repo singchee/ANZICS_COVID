@@ -23,11 +23,12 @@ df2= df %>%
 df2 = df2 %>% 
      
      replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0)) %>%
-     mutate(ANZROD = ifelse(ICU_AD_DTM >= as.Date("2020-01-01", origin = "1970-01-01"), ANZRODRiskOfDeath, ANZRODRiskofDeath_old),
+     mutate(ANZROD = ANZRODRiskofDeath_old,
             pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
             state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
             date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-"),
-            SEX = recode(SEX, NULL="O", I="O"))
+            SEX = recode(SEX, NULL="O", I="O")) %>%
+    filter(year(ICU_AD_DTM)<'2022')
 
 
 #Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
