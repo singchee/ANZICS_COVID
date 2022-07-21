@@ -79,7 +79,7 @@ df3_covid_nswvicact = df2 %>%
     summarize(sum=n())
 
 #get COVID cases per month for other states   
-df3_covid_nswvicact = df2 %>% 
+df3_covid_other = df2 %>% 
     filter(state_subgroup == 0) %>%
     filter(ANZRODIsSMR == 1) %>%
     filter(JurisdictionName !="NZ") %>%
