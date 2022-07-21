@@ -38,6 +38,35 @@ its = m1_all %>%
      mutate(month=as.Date(month)) %>%
      mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) #replace Na with 0
 
+#other states
+its_other = m1_other %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
+    left_join(df3_covid_other, by="month") %>%
+    mutate(month=as.Date(month)) %>%
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
+
+#NSWVICACT
+its_nswvicact = m1_nswvicact %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
+    left_join(df3_covid_nswvicact, by="month") %>%
+    mutate(month=as.Date(month)) %>%
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
 
 #Plot adjusted OR for death
 
