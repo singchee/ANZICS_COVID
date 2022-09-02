@@ -36,44 +36,8 @@ its = mod_ts %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
     left_join(df3_covid, by="month") %>%
     mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) #replace Na with 0
-
-its= slice(its, 1:(n() - 1)) #remove last row (July 2022)
-
-
-#other states
-its_other = m1_other %>%
-    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-    group_by(pandperiod) %>%
-    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
-    ungroup() %>%
-    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
-    left_join(df3_covid_other, by="month") %>%
-    mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
-
-#NSWVICACT
-its_nswvicact = m1_nswvicact %>%
-    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-    group_by(pandperiod) %>%
-    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
-    ungroup() %>%
-    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
-    left_join(df3_covid_nswvicact, by="month") %>%
-    mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
-
-#Plot adjusted OR for death
-
-   
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) %>%
+	slice(1:(n() - 1))  #remove last row (July 2022)
 
 its %>%
      ggplot(aes(month, estimate)) + #plot
@@ -89,6 +53,58 @@ its %>%
      xlab("Date of Admission") +
      annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
+##SUBGROUP ANALYSIS##
+
+data_nswvicact = filter(df3, state_subgroup == "1")
+data_others = filter(df3, state_subgroup == "0")
+
+mod_nswvicact = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=data_nswvicact, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+mod_others = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=data_others, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
+
+its_nswvicact = mod_nswvicact %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=50, 1, 0)) %>% #generate  month series and     pandemic period
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
+    mutate(month=as.Date(month)) %>%
+    slice(1:(n() - 1))
+
+its_nswvicact %>%
+    ggplot(aes(month, estimate)) + #plot
+    geom_point() + 
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+    geom_smooth()+
+    ylim(0.5, 1.2)
+
+# NOTE= missing july data for others #
+  
+its_others = mod_others %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=50, 1, 0)) %>% #generate  month series and     pandemic period
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/1"), by="month"))) %>%
+    mutate(month=as.Date(month))
+
+its_others %>%
+    ggplot(aes(month, estimate)) + #plot
+    geom_point() + 
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+    geom_smooth()+
+    ylim(0.5, 1.4)
+
+
+
+##IGNORE BELOW
 
 lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
 
@@ -111,19 +127,6 @@ SiteID_effects = SiteID_effects %>%
     broom.mixed::tidy(m1_all, effects = "ran_vals", conf.int = TRUE) %>%
     mutate(across(c(estimate, starts_with("conf")), exp))
 
-#ALTERNATIVE
-
-m2NSWVICACT %>%
-     tidy(effects = "fixed", conf.int = TRUE) %>%
-     filter(str_detect(term, "series")) %>%
-     mutate(across(c(estimate, starts_with("conf")), exp)) %>%
-     ggplot(aes(term, estimate)) +
-     geom_point() + 
-     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
-     geom_smooth()+
-          scale_x_continuous(breaks = scales::breaks_width(2))+
-          geom_vline(xintercept = 39, linetype="dotted",color = "blue", size=1)
-   
 
 summary(m)
 write.csv(summary(m)$coefficients, file="coeff.csv")]
