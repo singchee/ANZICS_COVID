@@ -24,19 +24,22 @@ mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + seri
 
 #get monthly estimates from Mixed Effects regression
 
-its = m1_all %>%
-     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-     group_by(pandperiod) %>%
-     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
-     ungroup() %>%
-     mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
-     left_join(df3_covid, by="month") %>%
-     mutate(month=as.Date(month)) %>%
-     mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) #replace Na with 0
+its = mod_ts %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=50, 1, 0)) %>% #generate  month series and     pandemic period
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
+    left_join(df3_covid, by="month") %>%
+    mutate(month=as.Date(month)) %>%
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) #replace Na with 0
+
+its= slice(its, 1:(n() - 1)) #remove last row (July 2022)
+
 
 #other states
 its_other = m1_other %>%
@@ -48,7 +51,7 @@ its_other = m1_other %>%
     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
     ungroup() %>%
-    mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
     left_join(df3_covid_other, by="month") %>%
     mutate(month=as.Date(month)) %>%
     mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
@@ -63,7 +66,7 @@ its_nswvicact = m1_nswvicact %>%
     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
     ungroup() %>%
-    mutate(month=as.Date(seq(as.Date("2017/2/1"), as.Date("2021/12/1"), by="month"))) %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
     left_join(df3_covid_nswvicact, by="month") %>%
     mutate(month=as.Date(month)) %>%
     mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum))
@@ -71,19 +74,28 @@ its_nswvicact = m1_nswvicact %>%
 #Plot adjusted OR for death
 
 its %>%
+    ggplot(aes(month, estimate)) + #plot
+    geom_point() + 
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+    geom_smooth()+
+    geom_line(mapping = aes(x  = month , y = sum/5000  +0.5), color = "red")+
+    ylim(0.5, 1.2) +
+    scale_y_continuous(name = "OR of Death", sec.axis = sec_axis(~(.-0.5) * 5000, name = "COVID admissions")) +
+    
+
+its %>%
      ggplot(aes(month, estimate)) + #plot
      geom_point() + 
      geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
      geom_smooth()+
      geom_line(mapping = aes(x  = month , y = sum/5000  +0.5), color = "red")+
-     ylim(0.6, 1.4) + 
+     ylim(0.5, 1.2) + 
      scale_y_continuous(name = "OR of Death", sec.axis = sec_axis(~(.-0.5) * 5000, name = "COVID admissions")) +
      scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
      geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
      xlab("Date of Admission") +
-     ggtitle("Adjusted OR of Death Over Time (All Patients)")+
-     annotate(geom="text", x=as.Date("2020/7/1"), y=1.2,label="Pandemic Period",color="Black")
+     annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
 
 lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
