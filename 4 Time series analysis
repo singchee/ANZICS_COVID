@@ -1,7 +1,7 @@
 #get estimates from ME regression without pandemic perioid adjustment
 
 #generate time series  based on monthly OR
-ts = ts(its[,3], frequency=12, start=c(2017,2)) #start from feb as Jan was  used for reference in mixed effects regression model
+ts = ts(its[,3], frequency=12, start=c(2016,2)) #start from feb as Jan was  used for reference in mixed effects regression model
 ts
 
 #plot data
@@ -32,12 +32,12 @@ lines(lowess(ts_noseason))
 ts_noseason_df=data.frame(Mortality=unclass(ts_noseason), date=as.Date(ts_noseason)) #convert to df for analysis
 
 #add time series labels to seasonally adjusted data
-ts_noseason_df=ungroup(ts_noseason_df)
- ts_noseason_df = ts_noseason_df %>%
-     mutate(series_month = 1:n(), pandemic = ifelse(series_month>=46, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-     group_by(pandemic) %>%
-     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-     mutate(series_pand = ifelse(pandemic == 0, 0, series_pand))
+ts_noseason_df2 = ts_noseason_df %>%
+    ungroup() %>%
+    mutate(series_month = 1:n(), pandemic = ifelse(series_month>=50, 1, 0)) %>% #generate  month series and pandemic period (month 50 is series 50 due to reference category)
+    group_by(pandemic) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandemic == 0, 0, series_pand))
  
 ts_mod_noseason=glm(ts~ pandemic + series_month+series_pand, data=ts_noseason_df, family=gaussian())
  summary(ts_mod_noseason)
