@@ -79,7 +79,13 @@ its_nswvicact %>%
     geom_point() + 
     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
     geom_smooth()+
-    ylim(0.5, 1.2)
+    ylim(0.5, 1.2) +
+    scale_y_continuous(name = "Odds Ratio for Mortality") +
+    scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
+    xlab("Date of Admission") +
+    annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
 # NOTE= missing july data for others #
   
@@ -95,12 +101,19 @@ its_others = mod_others %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/1"), by="month"))) %>%
     mutate(month=as.Date(month))
 
+
 its_others %>%
     ggplot(aes(month, estimate)) + #plot
     geom_point() + 
     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
     geom_smooth()+
-    ylim(0.5, 1.4)
+    ylim(0.5, 1.2) +
+    scale_y_continuous(name = "Odds Ratio for Mortality") +
+    scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
+    xlab("Date of Admission") +
+    annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
 
 
