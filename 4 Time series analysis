@@ -1,17 +1,5 @@
 #get estimates from ME regression without pandemic perioid adjustment
 
-#get monthly estimates from Mixed Effects regression
-
-its = mod_ts %>%
-     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
-     group_by(pandperiod) %>%
-     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
-
-
 #generate time series  based on monthly OR
 ts = ts(its[,3], frequency=12, start=c(2017,2)) #start from feb as Jan was  used for reference in mixed effects regression model
 ts
@@ -113,4 +101,16 @@ tab=stargazer(ts,
 
 
 #IGNORE BELOW#
+
+
+#get monthly estimates from Mixed Effects regression
+
+its = mod_ts %>%
+     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+     mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+     mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=38, 1, 0)) %>% #generate  month series and pandemic period (month 39 is series 38 due to reference category)
+     group_by(pandperiod) %>%
+     mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand))
 
