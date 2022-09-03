@@ -22,7 +22,9 @@ its %>%
     ggtitle("Adjusted OR of Death Over Time (All Patients)")+
     annotate(geom="text", x=45, y=1.2,label="Pandemic Period",color="Black")
 
-#create data with no seasonality
+#SEASONALLY ADJUSTED TS DATA#
+
+
 ts_decom = decompose(ts)
 plot(ts_decom)
 ts_noseason = ts - ts_decom$seasonal #remove seasonal component
@@ -42,9 +44,6 @@ ts_noseason_df2 = ts_noseason_df %>%
 ts_mod_noseason=glm(ts~ pandemic + series_month+series_pand, data=ts_noseason_df, family=gaussian())
  summary(ts_mod_noseason)
 
-#plotting adjusted 
-
-
 
 #ITS using Linear regression 
 
@@ -60,6 +59,10 @@ ts_noseason_df = ts_noseason_df %>%
 
 #build GLM model
 ts_model=glm(estimate ~ series + series_pand + pandperiod, ts_noseason_df, family=gaussian())
+
+
+
+
 
 #ITS using its.analysis
 
