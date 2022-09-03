@@ -1,5 +1,20 @@
 
-#segmented analysis
+#segmented analysis on non-seasonally adjusted data
+
+seg.fit = lm(estimate ~ series, data= its)
+segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=56)
+
+ts_data = its %>%
+    mutate(bp= ifelse(series >=62, 1, 0))  %>%
+    group_by(bp) %>%
+    mutate(series_bp = match(month, unique(month))) %>%
+    mutate(series_bp = ifelse(bp == 0, 0, series_bp))
+
+summary(lm(estimate ~ series + series_bp + bp, data=ts_data))
+write.csv(coef(lm(estimate ~ series + series_bp + bp, data=ts_data)), file = "its_all_LMresults.csv")
+
+#semented analysis on seasonal data
+
 seg.fit = lm(ts ~ series_month, data= ts_noseason_df2)
 segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=58) #guesstimated change in around month 58 (nov 2020) from visual plots
 slope(segmented.fit)
