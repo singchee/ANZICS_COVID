@@ -1,7 +1,15 @@
 
 #segmented analysis
+seg.fit = lm(ts ~ series_month, data= ts_noseason_df2)
+segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=58) #guesstimated change in around month 58 (nov 2020) from visual plots
+slope(segmented.fit)
+summary(segmented.fit)
+
 
 #save OR estimates as table 
+
+
+
 plot_all= m1_all %>%
           tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
           filter(str_detect(term, "series")) %>% #filter out predictors that have "series" 
@@ -10,6 +18,6 @@ plot_all= m1_all %>%
 
 seg.fit = lm(estimate ~ series, data= m1_plot)
 
-segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=45) #guesstimated change in around month 45 from visual plots
+segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=58) #guesstimated change in around month 58 (nov 2020) from visual plots
 slope(segmented.fit)
 summary(segmented.fit)
