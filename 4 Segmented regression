@@ -5,6 +5,16 @@ segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=58) #guesstimated chang
 slope(segmented.fit)
 summary(segmented.fit)
 
+ts_noseason_df2 = ts_noseason_df2 %>%
+    mutate(bp= ifelse(series_month >=65, 1, 0))  %>%
+          group_by(bp) %>%
+           mutate(series_bp = match(date, unique(date))) %>%
+          mutate(series_bp = ifelse(bp == 0, 0, series_bp))
+ 
+ its_data = ts_noseason_df2
+
+its_mod=lm(ts ~ series_month + bp + series_bp, data=its_data)
+summary(its_mod)
 
 #save OR estimates as table 
 
