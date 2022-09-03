@@ -1,15 +1,19 @@
 
 #segmented analysis on non-seasonally adjusted data
 
-seg.fit = lm(estimate ~ series, data= its)
-segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=56)
+#define data
 
-ts_data = its %>%
+its_data = its_all / its_nswvicact / its_others
+seg.fit = lm(estimate ~ series, data= its_data)
+segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=56)
+summary(segmented.fit) #checkbreakpoint
+
+ts_data = its_data %>%
     mutate(bp= ifelse(series >=62, 1, 0))  %>%
     group_by(bp) %>%
     mutate(series_bp = match(month, unique(month))) %>%
     mutate(series_bp = ifelse(bp == 0, 0, series_bp))
-
+    
 summary(lm(estimate ~ series + series_bp + bp, data=ts_data))
 write.csv(coef(lm(estimate ~ series + series_bp + bp, data=ts_data)), file = "its_all_LMresults.csv")
 
