@@ -81,16 +81,18 @@ its_nswvicact %>%
     geom_point() + 
     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
     geom_smooth()+
-    ylim(0.5, 1.2) +
-    scale_y_continuous(name = "Odds Ratio for Mortality") +
+    geom_line(mapping = aes(x  = month , y = sum/5000  +0.5), color = "red")+
+     ylim(0.5, 1.2) + 
+     scale_y_continuous(name = "Odds Ratio for Mortality", sec.axis = sec_axis(~(.-0.5) * 5000, name = "COVID admissions")) +
     scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
     xlab("Date of Admission") +
     annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
-# NOTE= missing july data for others #
-  
+# NOTE= missing july data 2022 for others - no need to remove last row, and 1 less in sequence
+
+
 its_others = mod_others %>%
     tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
     filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
@@ -101,7 +103,10 @@ its_others = mod_others %>%
     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
     ungroup() %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/1"), by="month"))) %>%
+    left_join(df3_covid_other, by="month") %>%
+    mutate(sum = ifelse(is.na(sum), 0, sum)) %>%
     mutate(month=as.Date(month))
+ 
 
 
 its_others %>%
@@ -109,14 +114,14 @@ its_others %>%
     geom_point() + 
     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
     geom_smooth()+
-    ylim(0.5, 1.2) +
-    scale_y_continuous(name = "Odds Ratio for Mortality") +
+    geom_line(mapping = aes(x  = month , y = sum/5000  +0.5), color = "red")+
+     ylim(0.5, 1.2) + 
+     scale_y_continuous(name = "Odds Ratio for Mortality", sec.axis = sec_axis(~(.-0.5) * 5000, name = "COVID admissions")) +
     scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
     xlab("Date of Admission") +
     annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
-
 
 
 ##IGNORE BELOW
