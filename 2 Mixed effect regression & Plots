@@ -71,6 +71,8 @@ its_nswvicact = mod_nswvicact %>%
     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
     ungroup() %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
+    left_join(df3_covid_nswvicact, by="month") %>%
+    mutate(sum = ifelse(is.na(sum), 0, sum)) %>%
     mutate(month=as.Date(month)) %>%
     slice(1:(n() - 1))
 
