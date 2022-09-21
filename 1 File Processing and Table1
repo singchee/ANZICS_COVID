@@ -9,7 +9,7 @@ df1=.xls
 df2= df %>%
 	select(c(PatientID, HospitalClassification, 
                   JurisdictionName,postcode,SiteID, AGE, ELECT, SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
-                  PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, 
+                  PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, NIV_IND, 
 		  ICU_AD_DTM, ICU_HRS,ICU_SRCE, ICU_OUTCM, DIED_ICU,
                   HOSP_OUTCM, HOSP_HRS, DIED_HOSP,
 		  ANZRODIsSMR, ANZRODRiskOfDeath, 
@@ -109,12 +109,12 @@ df3 = df3 %>%
 #generate table 1
 
 library(tableone)
-catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "INOTROP_IND","RENAL_IND", "ECMO_IND", "INV_IND","ELECT_SURG" )
+catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "INOTROP_IND", "NIV_IND", "RENAL_IND", "ECMO_IND", "INV_IND","ELECT_SURG" )
 tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
                                          "Apache2Score", "Apache3Score","ANZROD", 
                                           "DIED_ICU","DIED_HOSP", 
                                           "HOSP_HRS", "ICU_HRS", 
-                                          "ECMO_IND", "INV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
+                                          "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
 nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")					  
 print(tab, nonnormal=nonnormalVars)
 ---------------------------------------
