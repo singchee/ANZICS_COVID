@@ -57,7 +57,7 @@ df3_covid = df2 %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
-      filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
+      filter(as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
       group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
       summarize(sum=n())
       
@@ -72,7 +72,7 @@ df3_covid_nswvicact = df2 %>%
     filter(READMITTED == 0) %>%
     filter(ICU_OUTCM != 5) %>%
     filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
-    filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
+    filter(as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
     group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month'), .drop=FALSE) %>%
     summarize(sum=n())
 
@@ -87,7 +87,7 @@ df3_covid_other = df2 %>%
     filter(READMITTED == 0) %>%
     filter(ICU_OUTCM != 5) %>%
     filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>% 
-    filter(year(ICU_AD_DTM)<'2022' & as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
+    filter(as.Date(ICU_AD_DTM)>as.Date("2020/3/1")) %>% 
     group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month'), .drop=FALSE) %>%
     summarize(sum=n())
 
