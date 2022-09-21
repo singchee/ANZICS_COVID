@@ -8,7 +8,8 @@ seg.fit = lm(estimate ~ series, data= its_data)
 segmented.fit <- segmented(seg.fit, seg.Z = ~series, psi=56)
 summary(segmented.fit) #checkbreakpoint
 
-ts_data = its_data %>%
+#for all - 1 bp @ 60
+is_data = its_all %>%
     mutate(bp= ifelse(series >=62, 1, 0))  %>%
     group_by(bp) %>%
     mutate(series_bp = match(month, unique(month))) %>%
@@ -16,6 +17,40 @@ ts_data = its_data %>%
     
 summary(lm(estimate ~ series + series_bp + bp, data=ts_data))
 write.csv(coef(lm(estimate ~ series + series_bp + bp, data=ts_data)), file = "its_all_LMresults.csv")
+
+#for NSWVICACT - 1 bp @ 62
+ts_data = its_nswvicact %>%
+    mutate(bp= ifelse(series >=62, 1, 0))  %>%
+    group_by(bp) %>%
+    mutate(series_bp = match(month, unique(month))) %>%
+    mutate(series_bp = ifelse(bp == 0, 0, series_bp))
+    
+summary(lm(estimate ~ series + series_bp + bp, data=ts_data))
+write.csv(coef(lm(estimate ~ series + series_bp + bp, data=ts_data)), file = "its_all_LMresults.csv")
+
+#for others - 2 BP identified 30 & 60
+ts_data = its_data %>%
+    mutate(bp= 
+               case_when(series <30~0,
+                         series >=30 ~ 1), 
+           bp2 = case_when(series <60~0,
+                         series >=60 ~ 1) 
+           )  %>%
+    group_by(bp) %>%
+    mutate(series_bp = match(month, unique(month))) %>%
+    mutate(series_bp = ifelse(bp == 0, 0, series_bp)) %>%
+    ungroup() %>%
+    group_by(bp2) %>%
+    mutate(series_bp2 = match(month, unique(month))) %>%
+    mutate(series_bp2 = ifelse(bp2 == 0, 0, series_bp2))
+  
+  
+
+summary(lm(estimate ~ series + series_bp + bp + series_bp2 + bp2, data=ts_data))
+
+write.csv(coef(lm(estimate ~ series + series_bp + bp, data=ts_data)), file = "its_all_LMresults.csv")
+  
+#ISGNORE BELOW##
 
 #semented analysis on seasonal data
 
