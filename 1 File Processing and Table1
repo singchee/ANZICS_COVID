@@ -45,7 +45,8 @@ df3 = df2 %>%
 	      1101.10 , 1102.02)) %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
-      filter(ICU_SRCE !=5 & ICU_SRCE !=6)
+      filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>
+      mutate(plan_surg = ifelse(PLAN_ICU == "1" & ELECT_SURG == "1", 1, 0))
      
 #get COVID cases per month
 df3_covid = df2 %>% 
@@ -109,13 +110,28 @@ df3 = df3 %>%
 #generate table 1
 
 library(tableone)
-catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "INOTROP_IND", "NIV_IND", "RENAL_IND", "ECMO_IND", "INV_IND","ELECT_SURG", "APACHE_diag" )
-tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
+catVars=c("SEX","PLAN_ICU", "DIED_ICU","DIED_HOSP", "INOTROP_IND", "NIV_IND", "RENAL_IND", "ECMO_IND", "INV_IND","ELECT_SURG", "APACHE_diag","plan_surg" )
+tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
                                          "Apache2Score", "Apache3Score","ANZROD", 
                                           "DIED_ICU","DIED_HOSP", 
                                           "HOSP_HRS", "ICU_HRS", 
                                           "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
 nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")					  
 print(tab, nonnormal=nonnormalVars)
+
+#NSWVICACT
+tab_nswvicact = CreateTableOne(data = subset(df3, state_subgroup == "1"), vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
+                                         "Apache2Score", "Apache3Score","ANZROD", 
+                                         "DIED_ICU","DIED_HOSP", 
+                                         "HOSP_HRS", "ICU_HRS", 
+                                         "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
+
+write.csv(print(tab_nswvicact), file="table1_nswvicact.csv")
+
+tab_statecompare = CreateTableOne(data = subset(df3, pandemicperiod == "1"), vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
+                                         "Apache2Score", "Apache3Score","ANZROD", 
+                                         "DIED_ICU","DIED_HOSP", 
+                                         "HOSP_HRS", "ICU_HRS", 
+                                         "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "state_subgroup", factorVars = catVars)
 ---------------------------------------
 
