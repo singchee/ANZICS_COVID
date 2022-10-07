@@ -21,6 +21,11 @@ library(scales)
 
 mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 1)
 
+#Calculate excess deaths
+lme_data= df3 %>%
+     filter(series_month <= 62)
+
+mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + as.numeric(series_month) + (1|SiteID), data=lme_data, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
 #get monthly estimates from Mixed Effects regression
 
