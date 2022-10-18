@@ -120,7 +120,9 @@ nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "I
 print(tab, nonnormal=nonnormalVars)
 
 #generate data for 2018 onwards interventions
-tab = CreateTableOne(data = df3, vars =c("ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
+tab1 = df3 %>%
+     filter(year(ICU_AD_DTM) >= 2018)
+tab_int = CreateTableOne(data = tab1, vars =c("ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
 nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")
 
 
