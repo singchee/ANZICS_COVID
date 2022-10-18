@@ -140,5 +140,8 @@ tab_statecompare = CreateTableOne(data = subset(df3, pandemicperiod == "1"), var
                                          "DIED_ICU","DIED_HOSP", 
                                          "HOSP_HRS", "ICU_HRS", 
                                          "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "state_subgroup", factorVars = catVars)
+print(tab_statecompare, nonnormal=nonnormalVars)
+write.csv(print(tab_nswvicact), file="table1_nswvicact.csv")
+
 ---------------------------------------
 
