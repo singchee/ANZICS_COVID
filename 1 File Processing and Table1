@@ -115,9 +115,14 @@ tab = CreateTableOne(data = df3, vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG",
                                          "Apache2Score", "Apache3Score","ANZROD", 
                                           "DIED_ICU","DIED_HOSP", 
                                           "HOSP_HRS", "ICU_HRS", 
-                                          "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
+                                          "APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
 nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")					  
 print(tab, nonnormal=nonnormalVars)
+
+#generate data for 2018 onwards interventions
+tab = CreateTableOne(data = df3, vars =c("ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND"), strata= "pandemicperiod", factorVars = catVars)
+nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "ICU_HRS")
+
 
 #NSWVICACT
 tab_nswvicact = CreateTableOne(data = subset(df3, state_subgroup == "1"), vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
