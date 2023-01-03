@@ -3,10 +3,8 @@ library(lubridate)
 library(zoo)
 
 
-df1=.xls
-
 #choose columns of interest
-df2= df %>%
+df1= APD %>%
 	select(c(PatientID, HospitalClassification, 
                   JurisdictionName,postcode,SiteID, AGE, ELECT, SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, NIV_IND, 
@@ -21,7 +19,7 @@ df2= df %>%
 
 df2 = df1 %>% 
      
-     replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0)) %>%
+     replace_na(list(DIED_ICU=0, DIED_HOSP=0, PLAN_ICU=0, ELECT=0, ELECT_SURG=0, ECMO_IND=0, INV_IND=0, RENAL_IND=0, INOTROP_IND=0, VENTILATED=0, NIV_IND=0)) %>%
      mutate(ANZROD = ANZRODRiskofDeath_old,
             pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
             state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
