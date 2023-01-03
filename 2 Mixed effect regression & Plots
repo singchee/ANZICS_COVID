@@ -58,7 +58,7 @@ its %>%
 
 
 #plot with crude mortality
-its_crudemort %>%
+its %>%
     ggplot(aes(month, estimate)) + #plot
     geom_point() + 
     geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
