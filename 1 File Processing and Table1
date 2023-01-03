@@ -91,6 +91,11 @@ df3_covid_other = df2 %>%
     group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month'), .drop=FALSE) %>%
     summarize(sum=n())
 
+#get monthly raw mortality
+df3_mort = df3 %>%
+    group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
+    summarize(mort = mean(DIED_HOSP)*100)
+
 #recode all AP3 codes into diagnostic categories
 df3 = df3 %>%
     mutate(APACHE_diag = 
