@@ -19,11 +19,8 @@ library(scales)
 
 #get estimates from ME regression without pandemic perioid adjustment
 
-mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 1)
+mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
-#Calculate excess deaths
-lme_data= df3 %>%
-     filter(series_month <= 62)
 
 mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + as.numeric(series_month) + (1|SiteID), data=lme_data, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
@@ -40,9 +37,9 @@ its = mod_ts %>%
     ungroup() %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/7/1"), by="month"))) %>%
     left_join(df3_covid, by="month") %>%
+    left_join(df3_mort, by="month") %>%
     mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) %>%
-	slice(1:(n() - 1))  #remove last row (July 2022)
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) 
 
 its %>%
      ggplot(aes(month, estimate)) + #plot
