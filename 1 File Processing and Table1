@@ -46,9 +46,20 @@ df3 = df2  %>%
     filter(READMITTED == 0) %>%
     filter(ICU_OUTCM != 5) %>%
     filter(ICU_SRCE !=5 & ICU_SRCE !=6)
+    
+#assign time series
+df3= df3 %>% 
+	arrange(ICU_AD_DTM) %>%
+     	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
+     	group_by(date_month) %>%
+     	dplyr::mutate(series_month = as.factor(cur_group_id())) %>% # generate month sequence
+	group_by(pandemicperiod) %>%
+	   mutate(series_pand = match(date_month, unique(date_month))) %>%
+     mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
+      
      
 #get COVID cases per month
-df3_covid = df2 %>% 
+df3_covid = df3 %>% 
 	filter(ANZRODIsSMR == 1) %>%
 	filter(JurisdictionName !="NZ") %>%
 	filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
@@ -62,7 +73,7 @@ df3_covid = df2 %>%
       summarize(sum=n())
       
 #get COVID cases per month for NSWVICACT   
-df3_covid_nswvicact = df2 %>% 
+df3_covid_nswvicact = df3 %>% 
     filter(state_subgroup == 1) %>%
     filter(ANZRODIsSMR == 1) %>%
     filter(JurisdictionName !="NZ") %>%
@@ -77,7 +88,7 @@ df3_covid_nswvicact = df2 %>%
     summarize(sum=n())
 
 #get COVID cases per month for other states   
-df3_covid_other = df2 %>% 
+df3_covid_other = df3 %>% 
     filter(state_subgroup == 0) %>%
     filter(ANZRODIsSMR == 1) %>%
     filter(JurisdictionName !="NZ") %>%
