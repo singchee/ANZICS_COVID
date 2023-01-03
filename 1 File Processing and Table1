@@ -158,5 +158,15 @@ tab_statecompare = CreateTableOne(data = subset(df3, pandemicperiod == "1"), var
 print(tab_statecompare, nonnormal=nonnormalVars)
 write.csv(print(tab_nswvicact), file="table1_nswvicact.csv")
 
+#cause of death pre/post pandemic
+tab_data = df3 %>%
+    filter(DIED_HOSP == 1)
+
+tab_died = CreateTableOne(data = tab_data, vars =c("APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
+
+write.csv(print(tab_died), file="tab_died.csv")
+
+ 
+
 ---------------------------------------
 
