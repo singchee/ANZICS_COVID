@@ -24,11 +24,12 @@ df2 = df1 %>%
             pandemicperiod = ifelse(ICU_AD_DTM >= as.Date("2020-03-01", origin = "1970-01-01"), 1, 0), 
             state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
             date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-"),
-            SEX = recode(SEX, NULL="O", I="O"))
+            SEX = recode(SEX, NULL="O", I="O")) %>% 
+	mutate(plan_surg = ifelse(PLAN_ICU == "1" & ELECT_SURG == "1", 1, 0))
 	    
 as.factor(pandperiod), as.numeric(pandseries), as.factor(state_subgroup), 
 #Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
-df3 = df2 %>% 
+df3 = df2  %>%
 	filter(ANZRODIsSMR == 1) %>%
 	filter(JurisdictionName !="NZ") %>%
 	filter(PANDEMIC !=1|is.na(PANDEMIC)) %>% 
@@ -44,7 +45,7 @@ df3 = df2 %>%
       filter(READMITTED == 0) %>%
       filter(ICU_OUTCM != 5) %>%
       filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>
-      mutate(plan_surg = ifelse(PLAN_ICU == "1" & ELECT_SURG == "1", 1, 0))
+      
      
 #get COVID cases per month
 df3_covid = df2 %>% 
