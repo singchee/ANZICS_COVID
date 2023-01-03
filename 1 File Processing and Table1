@@ -30,22 +30,22 @@ df2 = df1 %>%
 as.factor(pandperiod), as.numeric(pandseries), as.factor(state_subgroup), 
 #Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
 df3 = df2  %>%
-	filter(ANZRODIsSMR == 1) %>%
-	filter(JurisdictionName !="NZ") %>%
-	filter(PANDEMIC !=1|is.na(PANDEMIC)) %>% 
-	filter(!AP3_SUBCODE  %in% 
-	      c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
-	      203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
-	      301.05, 
-	      404.04, 
-	      501.07, 503.02, 
-	      704.12, 
-	      901.08, 
-	      1101.10 , 1102.02)) %>%
-      filter(READMITTED == 0) %>%
-      filter(ICU_OUTCM != 5) %>%
-      filter(ICU_SRCE !=5 & ICU_SRCE !=6) %>
-      
+    filter(ANZRODIsSMR == 1) %>% 
+    filter(ICU_AD_DTM < as.Date("2022-07-01", origin = "1970-01-01")) %>%
+    filter(JurisdictionName !="NZ") %>%
+    filter(PANDEMIC !=1|is.na(PANDEMIC)) %>% 
+    filter(!AP3_SUBCODE  %in% 
+               c(101.03, 102.03, 104.02, 106.05, 107.06, 110.02, 
+                 203.02, 204.02, 206.02, 208.02 , 209.02, 210.03, 212.03, 213.02, 
+                 301.05, 
+                 404.04, 
+                 501.07, 503.02, 
+                 704.12, 
+                 901.08, 
+                 1101.10 , 1102.02)) %>%
+    filter(READMITTED == 0) %>%
+    filter(ICU_OUTCM != 5) %>%
+    filter(ICU_SRCE !=5 & ICU_SRCE !=6)
      
 #get COVID cases per month
 df3_covid = df2 %>% 
