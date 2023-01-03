@@ -22,39 +22,6 @@ library(scales)
 data = df3
 mod_ts = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=data, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
-#SUBGROUPS - AGE, Illness severity, 
-data = filter(df3, AGE >=65)
-
-mod_ts_age = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=data, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
-
-its_age = mod_ts_age %>%
-    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
-    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
-    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
-    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=50, 1, 0)) %>% #generate  month series and     pandemic period
-    group_by(pandperiod) %>%
-    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
-    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
-    ungroup() %>%
-    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/30"), by="month"))) %>%
-    left_join(df3_covid, by="month") %>%
-    left_join(df3_mort, by="month") %>%
-    mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) 
-
-its_age %>%
-    ggplot(aes(month, estimate)) + #plot
-    geom_point() + 
-    geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
-    geom_smooth()+
-    ylim(0.5, 1.2) + 
-    scale_y_continuous(name = "Odds Ratio for Mortality") +
-    scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
-    xlab("Date of Admission") +
-    annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
-
 #get monthly estimates from Mixed Effects regression
 
 its = mod_ts %>%
@@ -175,34 +142,37 @@ its_others %>%
     annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
 
-##IGNORE BELOW
 
-lattice::dotplot(ranef(m2other, which = "SiteID", condVar = TRUE), scales = list(y = list(alternating = 0))) #caterpillar plot for SiteID
+#SUBGROUPS - AGE, Illness severity, 
+data = filter(df3, AGE >=65)
 
+mod_ts_subgp = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=data, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
+its_subgp = mod_ts_subgp %>%
+    tidy(effects = "fixed", conf.int = TRUE)%>% #extract fixed effect estimats
+    filter(str_detect(term, "series_month")) %>% #filter out predictors that have "series" 
+    mutate(across(c(estimate, starts_with("conf")), exp)) %>% #exponentiate estaimates and CI to get OR
+    mutate(series = seq_along(1:nrow(.)), pandperiod = ifelse(series>=50, 1, 0)) %>% #generate  month series and     pandemic period
+    group_by(pandperiod) %>%
+    mutate(series_pand = 1:n()) %>% #generate post-pandemic monthly sequence
+    mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
+    ungroup() %>%
+    mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/30"), by="month"))) %>%
+    left_join(df3_covid, by="month") %>%
+    left_join(df3_mort, by="month") %>%
+    mutate(month=as.Date(month)) %>%
+    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) 
 
-#building a ME with interaction terms between pandemic period and trends + hospital mortality
-
-df3 = within(df3, HospitalClassification <- relevel(HospitalClassification, ref = 4)) #set reference level for hospitals
-m1_all = glmer(DIED_HOSP ~ ANZRODRiskofDeath_old + HospitalClassification + series_month + (1|SiteID), data=df3, family=binomial, control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
-
-plot_model(m2other, terms = c("HospitalClassificationPrivate", "HospitalClassificationRural / Regional", "HospitalClassificationTertiary")) #plot effects of hospitaltype
-
-#generate interaction terms and plot interaction terms
-
-p = plot_model(m1_all, terms = c("HospitalClassificationMetropolitan:pandemicperiod", "HospitalClassificationRural / Regional:pandemicperiod", "HospitalClassificationPrivate:pandemicperiod"))
-p + ylim(0.75, 1.25)
-
-#determine siteID effects
-SiteID_effects = SiteID_effects %>%
-    broom.mixed::tidy(m1_all, effects = "ran_vals", conf.int = TRUE) %>%
-    mutate(across(c(estimate, starts_with("conf")), exp))
-
-
-summary(m)
-write.csv(summary(m)$coefficients, file="coeff.csv")]
-
-library(broom.mixed)
-tidy(m,conf.int=TRUE,exponentiate=TRUE,effects="fixed")
-
+its_subgp %>%
+    ggplot(aes(month, estimate)) + #plot
+    geom_point() + 
+    geom_linerange(aes(ymin = conf.low, ymax = conf.high))+
+    geom_smooth()+
+    ylim(0.5, 1.2) + 
+    scale_y_continuous(name = "Odds Ratio for Mortality") +
+    scale_x_date(date_breaks = "3 month", date_labels = "%b %Y") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
+    xlab("Date of Admission") +
+    annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
