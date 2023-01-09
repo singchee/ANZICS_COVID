@@ -142,13 +142,7 @@ nonnormalVars = c("AGE", "Apache2Score", "Apache3Score","ANZROD", "HOSP_HRS", "I
 
 
 #NSWVICACT
-tab_nswvicact = CreateTableOne(data = subset(df3, state_subgroup == "1"), vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
-                                         "Apache2Score", "Apache3Score","ANZROD", 
-                                         "DIED_ICU","DIED_HOSP", 
-                                         "HOSP_HRS", "ICU_HRS", 
-                                         "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "pandemicperiod", factorVars = catVars)
 
-write.csv(print(tab_nswvicact), file="table1_nswvicact.csv")
 
 tab_statecompare = CreateTableOne(data = subset(df3, pandemicperiod == "1"), vars =c("SEX", "AGE", "PLAN_ICU", "ELECT_SURG", "plan_surg",
                                          "Apache2Score", "Apache3Score","ANZROD", 
@@ -156,7 +150,7 @@ tab_statecompare = CreateTableOne(data = subset(df3, pandemicperiod == "1"), var
                                          "HOSP_HRS", "ICU_HRS", 
                                          "ECMO_IND", "INV_IND", "NIV_IND", "RENAL_IND", "INOTROP_IND", "APACHE_diag"), strata= "state_subgroup", factorVars = catVars)
 print(tab_statecompare, nonnormal=nonnormalVars)
-write.csv(print(tab_nswvicact), file="table1_nswvicact.csv")
+write.csv(print(tab_statecompare), file="tab_statecompare.csv")
 
 #cause of death pre/post pandemic
 tab_data = df3 %>%
