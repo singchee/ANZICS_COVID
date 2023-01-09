@@ -1,16 +1,6 @@
 
 #patient level multivariate regression analysis
 
-#assign relevant series sequence
-
-df3= df3 %>% 
-	arrange(ICU_AD_DTM) %>%
-     	mutate(date_month=zoo::as.yearmon(ICU_AD_DTM)) %>%
-     	group_by(date_month) %>%
-     	dplyr::mutate(series_month = as.factor(cur_group_id())) %>% # generate month sequence
-	group_by(pandemicperiod) %>%
-	   mutate(series_pand = match(date_month, unique(date_month))) %>%
-     mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
       
 	 
 library(broom.mixed)
