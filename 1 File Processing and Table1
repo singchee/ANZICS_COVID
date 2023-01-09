@@ -6,7 +6,7 @@ library(zoo)
 #choose columns of interest
 df1= APD %>%
 	select(c(PatientID, HospitalClassification, 
-                  JurisdictionName,postcode,SiteID, AGE, ELECT, SEX,AP3DIAG, AP3_SUBCODE, ELECT_SURG, READMITTED,
+                  JurisdictionName,postcode,SiteID, AGE,  SEX,AP3DIAG, AP3_SUBCODE, ELECT, ELECT_SURG, READMITTED,
                   PLAN_ICU, ECMO_IND, INV_IND, RENAL_IND, INOTROP_IND, NIV_IND, 
 		  ICU_AD_DTM, ICU_HRS,ICU_SRCE, ICU_OUTCM, DIED_ICU,
                   HOSP_OUTCM, HOSP_HRS, DIED_HOSP,
@@ -25,7 +25,7 @@ df2 = df1 %>%
             state_subgroup = ifelse(JurisdictionName %in% c('VIC', 'NSW', 'ACT'), 1, 0),
             date = paste(year(ICU_AD_DTM), month(ICU_AD_DTM), sep="-"),
             SEX = recode(SEX, NULL="O", I="O")) %>% 
-	mutate(plan_surg = ifelse(PLAN_ICU == "1" & ELECT_SURG == "1", 1, 0))
+	mutate(plan_surg = ifelse((PLAN_ICU == "1" & ELECT_SURG == "1") | ELECT == "1", 1, 0))
 	    
 as.factor(pandperiod), as.numeric(pandseries), as.factor(state_subgroup), 
 #Apply exclusions/inclusions, Select only those with SMR, remove NZ, remove pandemic codes, readmissions, transfers
