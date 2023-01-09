@@ -158,10 +158,7 @@ its_subgp = mod_ts_subgp %>%
     mutate(series_pand = ifelse(pandperiod == 0, 0, series_pand)) %>%
     ungroup() %>%
     mutate(month=as.Date(seq(as.Date("2016/2/1"), as.Date("2022/6/30"), by="month"))) %>%
-    left_join(df3_covid, by="month") %>%
-    left_join(df3_mort, by="month") %>%
-    mutate(month=as.Date(month)) %>%
-    mutate(sum=ifelse(month >= as.Date("2020/3/1") & is.na(sum), 0, sum)) 
+    mutate(month=as.Date(month))
 
 its_subgp %>%
     ggplot(aes(month, estimate)) + #plot
