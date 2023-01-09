@@ -56,7 +56,26 @@ df3= df3 %>%
 	group_by(pandemicperiod) %>%
 	   mutate(series_pand = match(date_month, unique(date_month))) %>%
      mutate(series_pand = ifelse(pandemicperiod == 0, 0, series_pand)) #generate pandemic month series
-      
+
+#get monthly raw mortality
+df3_mort = df3 %>%
+    group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
+    summarize(mort = mean(DIED_HOSP)*100)
+
+#recode all AP3 codes into diagnostic categories
+df3 = df3 %>%
+    mutate(APACHE_diag = 
+        case_when(
+            (AP3DIAG >= 100 & AP3DIAG <= 199 ) | AP3DIAG == 1202 | AP3DIAG == 1203 | AP3DIAG == 1204 | AP3DIAG == 1205 | AP3DIAG == 1211 | AP3DIAG == 1213 ~ "CVS",
+            AP3DIAG == 1206 | AP3DIAG == 1207 | AP3DIAG == 1208 | AP3DIAG == 1209 | AP3DIAG == 1210 | AP3DIAG == 1212 ~ "CardiacSurg", 
+            (AP3DIAG >= 200 & AP3DIAG <= 299) | (AP3DIAG >= 1300 & AP3DIAG <= 1399) ~"Respiratory",
+            (AP3DIAG >= 300 & AP3DIAG <= 399) | (AP3DIAG >= 1400 & AP3DIAG <= 1499) ~ "GastroIntestinal",
+            (AP3DIAG >= 400 & AP3DIAG <= 499) | (AP3DIAG >= 1500 & AP3DIAG <= 1599) ~ "Neuro",
+            AP3DIAG >= 500 & AP3DIAG <= 599 ~"Sepsis",
+            (AP3DIAG >= 600 & AP3DIAG <= 699) | (AP3DIAG >= 1600 & AP3DIAG <= 1699) ~ "Trauma",
+	    AP3DIAG >= 700 & AP3DIAG <= 799 ~ "Metabolic",
+	    AP3DIAG >= 900 & AP3DIAG <= 999 ~ "Renal",
+            (AP3DIAG >= 1000 & AP3DIAG <= 1199) | (AP3DIAG >= 800 & AP3DIAG <= 899) | AP3DIAG == "0"  ~ "Other"))
      
 #get COVID cases per month
 df3_covid = df3 %>% 
@@ -102,25 +121,6 @@ df3_covid_other = df3 %>%
     group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month'), .drop=FALSE) %>%
     summarize(sum=n())
 
-#get monthly raw mortality
-df3_mort = df3 %>%
-    group_by(month =lubridate::floor_date(ICU_AD_DTM, 'month')) %>%
-    summarize(mort = mean(DIED_HOSP)*100)
-
-#recode all AP3 codes into diagnostic categories
-df3 = df3 %>%
-    mutate(APACHE_diag = 
-        case_when(
-            (AP3DIAG >= 100 & AP3DIAG <= 199 ) | AP3DIAG == 1202 | AP3DIAG == 1203 | AP3DIAG == 1204 | AP3DIAG == 1205 | AP3DIAG == 1211 | AP3DIAG == 1213 ~ "CVS",
-            AP3DIAG == 1206 | AP3DIAG == 1207 | AP3DIAG == 1208 | AP3DIAG == 1209 | AP3DIAG == 1210 | AP3DIAG == 1212 ~ "CardiacSurg", 
-            (AP3DIAG >= 200 & AP3DIAG <= 299) | (AP3DIAG >= 1300 & AP3DIAG <= 1399) ~"Respiratory",
-            (AP3DIAG >= 300 & AP3DIAG <= 399) | (AP3DIAG >= 1400 & AP3DIAG <= 1499) ~ "GastroIntestinal",
-            (AP3DIAG >= 400 & AP3DIAG <= 499) | (AP3DIAG >= 1500 & AP3DIAG <= 1599) ~ "Neuro",
-            AP3DIAG >= 500 & AP3DIAG <= 599 ~"Sepsis",
-            (AP3DIAG >= 600 & AP3DIAG <= 699) | (AP3DIAG >= 1600 & AP3DIAG <= 1699) ~ "Trauma",
-	    AP3DIAG >= 700 & AP3DIAG <= 799 ~ "Metabolic",
-	    AP3DIAG >= 900 & AP3DIAG <= 999 ~ "Renal",
-            (AP3DIAG >= 1000 & AP3DIAG <= 1199) | (AP3DIAG >= 800 & AP3DIAG <= 899) | AP3DIAG == "0"  ~ "Other"))
 
 #generate table 1
 
