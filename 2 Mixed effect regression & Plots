@@ -104,6 +104,13 @@ its_all %>%
     write.csv(file="fig1a OR mortality.csv")
 write.csv(df3_mort, file="fig 1b Crude Mort.csv")
 
+its_nswvicact %>% 
+    select(estimate, p.value, conf.low, conf.high, pandperiod, month, sum) %>%
+    write.csv(file="fig2a mortality NSWVICACT.csv")
+its_others %>% 
+    select(estimate, p.value, conf.low, conf.high, pandperiod, month, sum) %>%
+    write.csv(file="fig2b mortality others.csv")
+
 
 # NOTE= missing july data 2022 for others - no need to remove last row, and 1 less in sequence
 
