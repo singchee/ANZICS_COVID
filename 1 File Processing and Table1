@@ -78,7 +78,7 @@ df3 = df3 %>%
             (AP3DIAG >= 1000 & AP3DIAG <= 1199) | (AP3DIAG >= 800 & AP3DIAG <= 899) | AP3DIAG == "0"  ~ "Other"))
      
 #get COVID cases per month
-df3_covid = df3 %>% 
+df3_covid = df2 %>% 
 	filter(ANZRODIsSMR == 1) %>%
 	filter(JurisdictionName !="NZ") %>%
 	filter(PANDEMIC !=2| is.na(PANDEMIC)) %>%  #make sure filter keeps the ia.na values as well
@@ -92,7 +92,7 @@ df3_covid = df3 %>%
       summarize(sum=n())
       
 #get COVID cases per month for NSWVICACT   
-df3_covid_nswvicact = df3 %>% 
+df3_covid_nswvicact = df2 %>% 
     filter(state_subgroup == 1) %>%
     filter(ANZRODIsSMR == 1) %>%
     filter(JurisdictionName !="NZ") %>%
@@ -107,7 +107,7 @@ df3_covid_nswvicact = df3 %>%
     summarize(sum=n())
 
 #get COVID cases per month for other states   
-df3_covid_other = df3 %>% 
+df3_covid_other = df2 %>% 
     filter(state_subgroup == 0) %>%
     filter(ANZRODIsSMR == 1) %>%
     filter(JurisdictionName !="NZ") %>%
