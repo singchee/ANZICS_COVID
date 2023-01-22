@@ -44,7 +44,6 @@ p1 = its %>%
      xlab("Date of Admission") +
      annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
 
-
 #plot with crude mortality
 p2= df3_mort %>%
     ggplot(aes(as.Date(month), mort)) + #plot
@@ -96,6 +95,15 @@ its_nswvicact %>%
     geom_vline(xintercept = as.Date("2020/3/1"), linetype="dotted",color = "blue", size=1) +
     xlab("Date of Admission") +
     annotate(geom="text", x=as.Date("2021/1/1"), y=1.2,label="Pandemic Declared (March 2020)",color="Black")
+
+
+
+#MJA data
+its_all %>% 
+    select(estimate, p.value, conf.low, conf.high, pandperiod, month, sum) %>%
+    write.csv(file="fig1a OR mortality.csv")
+write.csv(df3_mort, file="fig 1b Crude Mort.csv")
+
 
 # NOTE= missing july data 2022 for others - no need to remove last row, and 1 less in sequence
 
